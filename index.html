@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Lipstickk Store - Quản Lý Tổng Thể v2</title>
+    <style>
+        :root { --shopee: #ee4d2d; --blue: #0046ab; --bg: #f8f9fa; --green: #28a745; --text: #333; }
+        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; justify-content: center; color: var(--text); }
+        .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 100%; max-width: 1000px; }
+        
+        /* Tabs */
+        .tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 25px; gap: 10px; overflow-x: auto; }
+        .tab { padding: 12px 20px; cursor: pointer; font-weight: bold; color: #888; border-bottom: 3px solid transparent; white-space: nowrap; transition: 0.2s; }
+        .tab.active { color: var(--shopee); border-bottom-color: var(--shopee); }
+        .content-section { display: none; }
+        .content-section.active { display: block; }
+
+        /* UI chung */
+        .input-box { background: #fff5f2; padding: 20px; border-radius: 10px; border: 1px solid #ffe0d8; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px; }
+        label { display: block; font-weight: bold; font-size: 12px; margin-bottom: 6px; color: #555; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; outline: none; }
+        button { width: 100%; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-calc { background: var(--blue); }
+        .btn-save { background: var(--green); margin-top: 10px; }
+        .btn-orange { background: var(--shopee); margin-top: 10px; }
+
+        /* Detail Analysis Tab 3 */
+        .analysis-card { background: white; border: 1px solid #eee; border-radius: 10px; padding: 20px; margin-top: 20px; }
+        .analysis-title { color: var(--shopee); text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; }
+        .row-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #fafafa; font-size: 15px; }
+        .sub-item { padding-left: 25px; font-size: 13px; color: #777; font-style: italic; }
+        .negative { color: #d32f2f; font-weight: bold; }
+        .final-row { border-top: 2px solid var(--shopee); margin-top: 15px; padding-top: 15px; font-size: 24px; font-weight: bold; color: var(--shopee); }
+
+        /* Result Sỉ */
+        .si-result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 15px; display: none; }
+        .si-card { background: white; padding: 15px; border-radius: 10px; border: 1px solid #ddd; text-align: center; }
+        .final-price { font-size: 20px; font-weight: bold; color: var(--shopee); margin-top: 10px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        th, td { border: 1px solid #eee; padding: 12px; text-align: center; }
+        th { background: #fafafa; }
+        .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="color: var(--shopee); text-align: center; margin-bottom: 25px;">LIPSTICKK STORE - MANAGEMENT</h2>
+    
+    <div class="tabs">
+        <div id="t-si" class="tab active" onclick="switchTab('si')">QUẢN LÝ GIÁ SỈ (NEW)</div>
+        <div id="t-le" class="tab" onclick="switchTab('le')">QUẢN LÝ SẢN PHẨM (LẺ)</div>
+        <div id="t-calc" class="tab" onclick="switchTab('calc')">CHI TIẾT DOANH THU ƯỚC TÍNH</div>
+    </div>
+
+    <div id="sec-si" class="content-section active">
+        <div class="input-box">
+            <div class="grid">
+                <div style="grid-column: span 2;"><label>Tên sản phẩm:</label><input type="text" id="siName"></div>
+                <div style="grid-column: span 2;"><label>Ảnh sản phẩm:</label><input type="file" onchange="handleImg(this, 'siImgBase64')"><input type="hidden" id="siImgBase64"></div>
+                <div><label>Giá JPY:</label><input type="number" id="siJpy" value="880"></div>
+                <div><label>Tỷ giá:</label><input type="number" id="siRate" value="170"></div>
+                <div><label>Ship N-V:</label><input type="number" id="siShip" value="6000"></div>
+                <div><label>Đóng gói:</label><input type="number" id="siPack" value="2000"></div>
+            </div>
+            <button class="btn-calc" onclick="calcSi()">GIÁ SỈ THEO PHÂN LOẠI</button>
+            <div id="siRes" class="si-result-grid">
+                <div class="si-card"><h4>SỈ NHỎ (10-20)</h4><div id="p10" style="color:green; font-weight:bold"></div><div class="final-price" id="s10"></div></div>
+                <div class="si-card"><h4>SỈ TRUNG (30-40)</h4><div id="p30" style="color:green; font-weight:bold"></div><div class="final-price" id="s30"></div></div>
+                <div class="si-card"><h4>SỈ LỚN (≥ 50)</h4><div id="p50" style="color:green; font-weight:bold"></div><div class="final-price" id="s50"></div></div>
+            </div>
+            <button class="btn-save" id="btnSaveSi" style="display:none;" onclick="saveSi()">LƯU DANH SÁCH SỈ</button>
+        </div>
+        <table><thead><tr><th>Ảnh</th><th>Sản phẩm</th><th>Sỉ 10</th><th>Sỉ 30</th><th>Sỉ 50</th><th>Xóa</th></tr></thead><tbody id="bodySi"></tbody></table>
+    </div>
+
+    <div id="sec-le" class="content-section">
+        <div class="input-box">
+            <div class="grid">
+                <div style="grid-column: span 2;"><label>Tên sản phẩm:</label><input type="text" id="leName"></div>
+                <div><label>Vốn VNĐ:</label><input type="number" id="leCost"></div>
+                <div><label>Bán Shopee:</label><input type="number" id="leSale"></div>
+            </div>
+            <button class="btn-save" onclick="saveLe()">LƯU SẢN PHẨM LẺ</button>
+        </div>
+        <table><thead><tr><th>Tên sản phẩm</th><th>Vốn</th><th>Giá bán</th><th>Lãi thực nhận</th><th>Xóa</th></tr></thead><tbody id="bodyLe"></tbody></table>
+    </div>
+
+    <div id="sec-calc" class="content-section">
+        <div class="input-box">
+            <label>Giá nhập hàng (VNĐ):</label>
+            <input type="number" id="detCost" value="150000" style="margin-bottom:15px">
+            <label>Giá bán niêm yết Shopee (VNĐ):</label>
+            <input type="number" id="detSale" value="340000">
+            <button class="btn-orange" onclick="analyzeDetail()">PHÂN TÍCH THEO ĐƠN HÀNG</button>
+        </div>
+
+        <div id="analysisBox" class="analysis-card" style="display:none;">
+            <div class="analysis-title">CHI TIẾT DOANH THU ƯỚC TÍNH</div>
+            <div class="row-item"><span>Tổng tiền sản phẩm</span><span id="resTotal">0đ</span></div>
+            <div class="row-item"><span>Phụ phí sàn</span><span id="resFeeTotal" class="negative">0đ</span></div>
+            <div class="row-item sub-item"><span>Phí cố định (14%)</span><span id="resFix">0đ</span></div>
+            <div class="row-item sub-item"><span>Phí Dịch vụ (Hạ tầng + Voucher Xtra)</span><span id="resService">0đ</span></div>
+            <div class="row-item sub-item" style="padding-left:45px"><span>+ Phí Hạ tầng (3k/đơn)</span><span>-3.000đ</span></div>
+            <div class="row-item sub-item" style="padding-left:45px"><span>+ Voucher Xtra (4%)</span><span id="resVxtra">0đ</span></div>
+            <div class="row-item sub-item"><span>Phí thanh toán (~4.9%)</span><span id="resPay">0đ</span></div>
+            
+            <div class="row-item" style="margin-top:10px"><span>Thuế</span><span id="resTaxTotal" class="negative">0đ</span></div>
+            <div class="row-item sub-item"><span>Thuế GTGT (1%)</span><span id="resTaxGTGT">0đ</span></div>
+            <div class="row-item sub-item"><span>Thuế TNCN (0.5%)</span><span id="resTaxTNCN">0đ</span></div>
+            
+            <div class="row-item" style="margin-top:10px"><span>Giá vốn hàng bán</span><span id="resFinalCost" class="negative">0đ</span></div>
+            
+            <div class="final-row"><span>THỰC NHẬN (LÃI)</span><span id="resFinalProfit">0đ</span></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function switchTab(n) {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.getElementById('sec-' + n).classList.add('active');
+        document.getElementById('t-' + n).classList.add('active');
+        if(n==='si') renderSi(); if(n==='le') renderLe();
+    }
+
+    function handleImg(input, target) {
+        let reader = new FileReader();
+        reader.onload = e => document.getElementById(target).value = e.target.result;
+        reader.readAsDataURL(input.files[0]);
+    }
+
+    // LOGIC TAB 1: SỈ
+    function calcSi() {
+        let v = (parseFloat(document.getElementById('siJpy').value)*parseFloat(document.getElementById('siRate').value)) + parseFloat(document.getElementById('siShip').value) + parseFloat(document.getElementById('siPack').value);
+        let lv = [1.17, 1.136, 1.102], ids = [10, 30, 50];
+        ids.forEach((id, i) => {
+            let p = Math.round(((v * lv[i]) / 0.98) / 1000) * 1000;
+            document.getElementById('s'+id).innerText = p.toLocaleString() + 'đ';
+            document.getElementById('p'+id).innerText = 'Lãi: ' + Math.round((p*0.98) - v).toLocaleString() + 'đ';
+        });
+        document.getElementById('siRes').style.display = 'grid';
+        document.getElementById('btnSaveSi').style.display = 'block';
+    }
+
+    function saveSi() {
+        let list = JSON.parse(localStorage.getItem('D_SI') || "[]");
+        list.push({ n: document.getElementById('siName').value, i: document.getElementById('siImgBase64').value, s10: document.getElementById('s10').innerText, s30: document.getElementById('s30').innerText, s50: document.getElementById('s50').innerText });
+        localStorage.setItem('D_SI', JSON.stringify(list)); renderSi();
+    }
+
+    function renderSi() {
+        let h = ''; JSON.parse(localStorage.getItem('D_SI') || "[]").forEach((item, idx) => {
+            h += `<tr><td><img src="${item.i}" class="img-preview"></td><td>${item.n}</td><td>${item.s10}</td><td>${item.s30}</td><td>${item.s50}</td><td><button onclick="del('D_SI',${idx},renderSi)" style="background:#999; padding:5px; font-size:10px;">Xóa</button></td></tr>`;
+        });
+        document.getElementById('bodySi').innerHTML = h;
+    }
+
+    // LOGIC TAB 2: LẺ
+    function saveLe() {
+        let list = JSON.parse(localStorage.getItem('D_LE') || "[]");
+        list.push({ n: document.getElementById('leName').value, c: document.getElementById('leCost').value, s: document.getElementById('leSale').value });
+        localStorage.setItem('D_LE', JSON.stringify(list)); renderLe();
+    }
+
+    function renderLe() {
+        let h = ''; JSON.parse(localStorage.getItem('D_LE') || "[]").forEach((item, idx) => {
+            let profit = item.s - (item.s * 0.254) - item.c;
+            h += `<tr><td>${item.n}</td><td>${item.c.toLocaleString()}</td><td>${item.s.toLocaleString()}</td><td style="color:green; font-weight:bold">${Math.round(profit).toLocaleString()}đ</td><td><button onclick="del('D_LE',${idx},renderLe)" style="background:#999; padding:5px; font-size:10px;">Xóa</button></td></tr>`;
+        });
+        document.getElementById('bodyLe').innerHTML = h;
+    }
+
+    // LOGIC TAB 3: PHÂN TÍCH CHI TIẾT (QUAN TRỌNG NHẤT)
+    function analyzeDetail() {
+        let cost = parseFloat(document.getElementById('detCost').value) || 0;
+        let sale = parseFloat(document.getElementById('detSale').value) || 0;
+
+        // Tính phụ phí sàn
+        let fix = sale * 0.14; // Phí cố định 14%
+        let vXtra = sale * 0.04; // Voucher Xtra 4%
+        let service = 3000 + vXtra; // Hạ tầng 3k + Vxtra
+        let pay = sale * 0.049; // Thanh toán ~4.9%
+        let totalFee = fix + service + pay;
+
+        // Tính thuế
+        let tGTGT = sale * 0.01;
+        let tTNCN = sale * 0.005;
+        let totalTax = tGTGT + tTNCN;
+
+        // Tính thực nhận
+        let profit = sale - totalFee - totalTax - cost;
+
+        // Hiển thị kết quả
+        document.getElementById('resTotal').innerText = sale.toLocaleString() + "đ";
+        document.getElementById('resFeeTotal').innerText = "-" + Math.round(totalFee).toLocaleString() + "đ";
+        document.getElementById('resFix').innerText = "-" + Math.round(fix).toLocaleString() + "đ";
+        document.getElementById('resVxtra').innerText = "-" + Math.round(vXtra).toLocaleString() + "đ";
+        document.getElementById('resService').innerText = "-" + Math.round(service).toLocaleString() + "đ";
+        document.getElementById('resPay').innerText = "-" + Math.round(pay).toLocaleString() + "đ";
+        
+        document.getElementById('resTaxTotal').innerText = "-" + Math.round(totalTax).toLocaleString() + "đ";
+        document.getElementById('resTaxGTGT').innerText = "-" + Math.round(tGTGT).toLocaleString() + "đ";
+        document.getElementById('resTaxTNCN').innerText = "-" + Math.round(tTNCN).toLocaleString() + "đ";
+        
+        document.getElementById('resFinalCost').innerText = "-" + cost.toLocaleString() + "đ";
+        document.getElementById('resFinalProfit').innerText = Math.round(profit).toLocaleString() + "đ";
+
+        document.getElementById('analysisBox').style.display = 'block';
+    }
+
+    function del(k, i, cb) { if(confirm('Xóa?')) { let l = JSON.parse(localStorage.getItem(k)); l.splice(i,1); localStorage.setItem(k, JSON.stringify(l)); cb(); } }
+    
+    window.onload = () => switchTab('si');
+</script>
+</body>
+</html>
