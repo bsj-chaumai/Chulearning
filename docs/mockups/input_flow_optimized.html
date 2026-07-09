@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lipstickk Store — Mockup tối ưu luồng nhập liệu / 入力フロー最適化モック</title>
+  <style>
+    :root {
+      --shopee: #ee4d2d;
+      --shopee-dark: #d73211;
+      --ink: #1a1a1a;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --bg: #f3f4f6;
+      --card: #ffffff;
+      --ok: #059669;
+      --warn: #b45309;
+      --blue: #1d4ed8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Noto Sans", "Helvetica Neue", sans-serif;
+      background: linear-gradient(180deg, #fff5f2 0%, var(--bg) 28%, #eef2ff 100%);
+      color: var(--ink);
+      min-height: 100vh;
+    }
+    .topbar {
+      position: sticky; top: 0; z-index: 20;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 12px 20px;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+    .brand { font-weight: 800; color: var(--shopee); letter-spacing: .02em; }
+    .lang-switch { display: flex; gap: 6px; }
+    .lang-switch button, .chip, .btn {
+      border: 1px solid var(--line); background: #fff; border-radius: 8px;
+      padding: 8px 12px; cursor: pointer; font-weight: 600; font-size: 13px;
+    }
+    .lang-switch button.active { background: var(--shopee); color: #fff; border-color: var(--shopee); }
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    .note {
+      background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px;
+      padding: 14px 16px; margin-bottom: 18px; font-size: 14px; line-height: 1.5;
+    }
+    .note strong { color: var(--warn); }
+    .layout { display: grid; grid-template-columns: 1.15fr .85fr; gap: 18px; }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+    .panel {
+      background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+      padding: 18px; box-shadow: 0 8px 24px rgba(15,23,42,.04);
+    }
+    h1 { font-size: 22px; margin: 0 0 6px; }
+    h2 { font-size: 16px; margin: 0 0 12px; }
+    .sub { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
+    .steps { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .step {
+      flex: 1; min-width: 110px; text-align: center; padding: 10px 8px;
+      border-radius: 10px; border: 1px dashed var(--line); font-size: 12px; color: var(--muted);
+    }
+    .step.on { border-style: solid; border-color: var(--shopee); color: var(--shopee); background: #fff5f2; font-weight: 700; }
+    .step.done { border-style: solid; border-color: var(--ok); color: var(--ok); background: #ecfdf5; }
+    label { display: block; font-size: 12px; font-weight: 700; color: #374151; margin-bottom: 6px; }
+    input, select {
+      width: 100%; padding: 11px 12px; border: 1px solid #d1d5db; border-radius: 10px;
+      font-size: 14px; margin-bottom: 12px; background: #fff;
+    }
+    input:focus, select:focus { outline: 2px solid #fdba74; border-color: var(--shopee); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .hint { font-size: 11px; color: var(--muted); margin-top: -8px; margin-bottom: 12px; }
+    .btn-primary { background: var(--shopee); color: #fff; border-color: var(--shopee); width: 100%; padding: 13px; }
+    .btn-primary:hover { background: var(--shopee-dark); }
+    .btn-ghost { width: 100%; margin-top: 8px; }
+    .preview-card {
+      border: 1px solid var(--line); border-radius: 12px; padding: 14px; background: #fafafa; margin-bottom: 12px;
+    }
+    .price-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+    .price-row.big { font-size: 20px; font-weight: 800; color: var(--shopee); border-top: 2px solid #ffe0d8; margin-top: 8px; padding-top: 12px; }
+    .badge { display: inline-block; font-size: 11px; padding: 3px 8px; border-radius: 999px; background: #e0e7ff; color: var(--blue); font-weight: 700; }
+    .diff {
+      margin-top: 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    @media (max-width: 700px) { .diff { grid-template-columns: 1fr; } }
+    .diff .box { border-radius: 12px; padding: 12px; font-size: 13px; line-height: 1.45; }
+    .before { background: #fef2f2; border: 1px solid #fecaca; }
+    .after { background: #ecfdf5; border: 1px solid #a7f3d0; }
+    .hidden { display: none !important; }
+    .img-drop {
+      border: 2px dashed #fdba74; border-radius: 12px; padding: 18px; text-align: center;
+      color: var(--muted); background: #fff7ed; margin-bottom: 12px; font-size: 13px;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .chip.active { background: #fff5f2; border-color: var(--shopee); color: var(--shopee); }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">LIPSTICKK · Input Flow Mock</div>
+    <div class="lang-switch">
+      <button type="button" id="btn-vi" class="active" onclick="setLang('vi')">VI</button>
+      <button type="button" id="btn-ja" onclick="setLang('ja')">JA</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="note">
+      <span data-i18n="note">
+        <strong>Lưu ý:</strong> File mockup gốc từ dev chưa được đính kèm thành công vào môi trường.
+        Đây là <em>mockup tham chiếu</em> do AI dựng từ phân tích UX prototype hiện tại (giảm nhập lặp, wizard 3 bước, xem trước lợi nhuận realtime).
+        Khi nhận được mockup gốc, sẽ thay thế / gắn kèm bên cạnh.
+      </span>
+    </div>
+
+    <div class="layout">
+      <section class="panel">
+        <h1 data-i18n="title">Thêm sản phẩm — luồng nhập liệu tối ưu</h1>
+        <p class="sub" data-i18n="subtitle">Một form thống nhất cho Sỉ + Lẻ + Phân tích phí. Không còn 3 tab nhập trùng lặp.</p>
+
+        <div class="steps">
+          <div class="step done" id="s1">1. <span data-i18n="step1">Thông tin SP</span></div>
+          <div class="step on" id="s2">2. <span data-i18n="step2">Chi phí &amp; giá</span></div>
+          <div class="step" id="s3">3. <span data-i18n="step3">Xác nhận</span></div>
+        </div>
+
+        <div id="pane1">
+          <label data-i18n="lbl_name">Tên sản phẩm</label>
+          <input id="name" value="Lipstick Rouge #01" />
+          <div class="img-drop" data-i18n="img_drop">Kéo thả ảnh / chọn file (tự nén &amp; lưu thumbnail)</div>
+          <label data-i18n="lbl_sku">SKU / Mã nội bộ (tuỳ chọn)</label>
+          <input id="sku" placeholder="LS-ROUGE-01" />
+          <label data-i18n="lbl_channel">Kênh bán chính</label>
+          <select id="channel">
+            <option>Shopee</option>
+            <option>Bán sỉ offline</option>
+            <option>Cả hai</option>
+          </select>
+          <button class="btn btn-primary" type="button" onclick="go(2)" data-i18n="next">Tiếp tục →</button>
+        </div>
+
+        <div id="pane2" class="hidden">
+          <div class="chips">
+            <button type="button" class="chip active" onclick="setMode(this,'import')" data-i18n="mode_import">Nhập khẩu (JPY)</button>
+            <button type="button" class="chip" onclick="setMode(this,'local')" data-i18n="mode_local">Nội địa (VND)</button>
+          </div>
+          <div class="grid-2" id="importFields">
+            <div>
+              <label data-i18n="lbl_jpy">Giá nhập JPY</label>
+              <input type="number" id="jpy" value="880" oninput="recalc()" />
+            </div>
+            <div>
+              <label data-i18n="lbl_rate">Tỷ giá (VND/JPY)</label>
+              <input type="number" id="rate" value="170" oninput="recalc()" />
+              <div class="hint" data-i18n="hint_rate">Gợi ý: lấy từ cài đặt chung, không nhập lại mỗi lần</div>
+            </div>
+            <div>
+              <label data-i18n="lbl_ship">Ship Nhật→VN / SP</label>
+              <input type="number" id="ship" value="6000" oninput="recalc()" />
+            </div>
+            <div>
+              <label data-i18n="lbl_pack">Đóng gói / SP</label>
+              <input type="number" id="pack" value="2000" oninput="recalc()" />
+            </div>
+          </div>
+          <div class="grid-2">
+            <div>
+              <label data-i18n="lbl_sale">Giá bán Shopee (VND)</label>
+              <input type="number" id="sale" value="340000" oninput="recalc()" />
+            </div>
+            <div>
+              <label data-i18n="lbl_fee_profile">Gói phí sàn</label>
+              <select id="feeProfile" onchange="recalc()">
+                <option value="default" data-i18n="fee_default">Mặc định (14% + VX 4% + TT 4.9% + thuế)</option>
+                <option value="lite" data-i18n="fee_lite">Lite (không Voucher Xtra)</option>
+              </select>
+            </div>
+          </div>
+          <label data-i18n="lbl_tiers">Hệ số giá sỉ (có thể chỉnh trong Cài đặt)</label>
+          <div class="grid-3">
+            <div><input type="number" step="0.001" id="t10" value="1.17" oninput="recalc()" /><div class="hint">Sỉ nhỏ 10–20</div></div>
+            <div><input type="number" step="0.001" id="t30" value="1.136" oninput="recalc()" /><div class="hint">Sỉ trung 30–40</div></div>
+            <div><input type="number" step="0.001" id="t50" value="1.102" oninput="recalc()" /><div class="hint">Sỉ lớn ≥50</div></div>
+          </div>
+          <button class="btn btn-primary" type="button" onclick="go(3)" data-i18n="preview">Xem trước &amp; lưu →</button>
+          <button class="btn btn-ghost" type="button" onclick="go(1)" data-i18n="back">← Quay lại</button>
+        </div>
+
+        <div id="pane3" class="hidden">
+          <p class="sub" data-i18n="confirm_help">Kiểm tra kết quả realtime rồi lưu một lần — đồng thời tạo bản ghi Sỉ + Lẻ + sẵn sàng mở phân tích phí.</p>
+          <button class="btn btn-primary" type="button" onclick="alert(savedMsg())" data-i18n="save">Lưu sản phẩm</button>
+          <button class="btn btn-ghost" type="button" onclick="go(2)" data-i18n="back">← Quay lại</button>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <h2 data-i18n="live_title">Xem trước lợi nhuận (live)</h2>
+        <span class="badge" data-i18n="live_badge">Tính lại ngay khi nhập</span>
+        <div class="preview-card" style="margin-top:12px">
+          <div class="price-row"><span data-i18n="cost">Giá vốn / SP</span><strong id="outCost">—</strong></div>
+          <div class="price-row"><span data-i18n="si10">Giá sỉ nhỏ</span><strong id="out10">—</strong></div>
+          <div class="price-row"><span data-i18n="si30">Giá sỉ trung</span><strong id="out30">—</strong></div>
+          <div class="price-row"><span data-i18n="si50">Giá sỉ lớn</span><strong id="out50">—</strong></div>
+          <div class="price-row"><span data-i18n="net">Thực nhận (lẻ Shopee)</span><strong id="outNet">—</strong></div>
+          <div class="price-row big"><span data-i18n="profit">Lãi ước tính</span><span id="outProfit">—</span></div>
+        </div>
+        <div class="diff">
+          <div class="box before">
+            <strong data-i18n="before_t">Trước (AS-IS)</strong>
+            <ul style="margin:8px 0 0; padding-left:18px" data-i18n="before_l">
+              <li>3 tab nhập riêng, trùng tên/giá</li>
+              <li>Tỷ giá &amp; phí nhập lại mỗi lần</li>
+              <li>Chỉ thấy lãi sau khi bấm tính</li>
+              <li>localStorage, mất khi đổi máy</li>
+            </ul>
+          </div>
+          <div class="box after">
+            <strong data-i18n="after_t">Sau (TO-BE mock)</strong>
+            <ul style="margin:8px 0 0; padding-left:18px" data-i18n="after_l">
+              <li>1 wizard / 1 master sản phẩm</li>
+              <li>Cài đặt chung cho tỷ giá &amp; gói phí</li>
+              <li>Preview lãi realtime</li>
+              <li>Sẵn sàng lưu cloud + đồng bộ</li>
+            </ul>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const I18N = {
+      vi: {
+        note: '<strong>Lưu ý:</strong> File mockup gốc từ dev chưa được đính kèm thành công vào môi trường. Đây là <em>mockup tham chiếu</em> do AI dựng từ phân tích UX prototype hiện tại (giảm nhập lặp, wizard 3 bước, xem trước lợi nhuận realtime). Khi nhận được mockup gốc, sẽ thay thế / gắn kèm bên cạnh.',
+        title: 'Thêm sản phẩm — luồng nhập liệu tối ưu',
+        subtitle: 'Một form thống nhất cho Sỉ + Lẻ + Phân tích phí. Không còn 3 tab nhập trùng lặp.',
+        step1: 'Thông tin SP', step2: 'Chi phí & giá', step3: 'Xác nhận',
+        lbl_name: 'Tên sản phẩm', img_drop: 'Kéo thả ảnh / chọn file (tự nén & lưu thumbnail)',
+        lbl_sku: 'SKU / Mã nội bộ (tuỳ chọn)', lbl_channel: 'Kênh bán chính', next: 'Tiếp tục →',
+        mode_import: 'Nhập khẩu (JPY)', mode_local: 'Nội địa (VND)',
+        lbl_jpy: 'Giá nhập JPY', lbl_rate: 'Tỷ giá (VND/JPY)', hint_rate: 'Gợi ý: lấy từ cài đặt chung, không nhập lại mỗi lần',
+        lbl_ship: 'Ship Nhật→VN / SP', lbl_pack: 'Đóng gói / SP',
+        lbl_sale: 'Giá bán Shopee (VND)', lbl_fee_profile: 'Gói phí sàn',
+        fee_default: 'Mặc định (14% + VX 4% + TT 4.9% + thuế)', fee_lite: 'Lite (không Voucher Xtra)',
+        lbl_tiers: 'Hệ số giá sỉ (có thể chỉnh trong Cài đặt)', preview: 'Xem trước & lưu →', back: '← Quay lại',
+        confirm_help: 'Kiểm tra kết quả realtime rồi lưu một lần — đồng thời tạo bản ghi Sỉ + Lẻ + sẵn sàng mở phân tích phí.',
+        save: 'Lưu sản phẩm', live_title: 'Xem trước lợi nhuận (live)', live_badge: 'Tính lại ngay khi nhập',
+        cost: 'Giá vốn / SP', si10: 'Giá sỉ nhỏ', si30: 'Giá sỉ trung', si50: 'Giá sỉ lớn',
+        net: 'Thực nhận (lẻ Shopee)', profit: 'Lãi ước tính',
+        before_t: 'Trước (AS-IS)', after_t: 'Sau (TO-BE mock)',
+        before_l: '<li>3 tab nhập riêng, trùng tên/giá</li><li>Tỷ giá &amp; phí nhập lại mỗi lần</li><li>Chỉ thấy lãi sau khi bấm tính</li><li>localStorage, mất khi đổi máy</li>',
+        after_l: '<li>1 wizard / 1 master sản phẩm</li><li>Cài đặt chung cho tỷ giá &amp; gói phí</li><li>Preview lãi realtime</li><li>Sẵn sàng lưu cloud + đồng bộ</li>',
+        saved: 'Đã lưu (mock). Trong bản thật sẽ ghi DB và cập nhật danh sách.'
+      },
+      ja: {
+        note: '<strong>注意:</strong> 開発側の原本モックは環境に未着です。これは現行プロトタイプのUX分析に基づく<em>参照モック</em>（入力重複の削減・3ステップウィザード・利益のリアルタイムプレビュー）です。原本受領後に差し替え／併記します。',
+        title: '商品追加 — 入力フロー最適化',
+        subtitle: '卸・小売・手数料分析を1フォームに統合。3タブでの重複入力を解消。',
+        step1: '商品情報', step2: '原価と価格', step3: '確認',
+        lbl_name: '商品名', img_drop: '画像をドラッグ＆ドロップ / 選択（自動圧縮・サムネ保存）',
+        lbl_sku: 'SKU / 社内コード（任意）', lbl_channel: '主販売チャネル', next: '次へ →',
+        mode_import: '輸入（JPY）', mode_local: '国内仕入（VND）',
+        lbl_jpy: '仕入価格 JPY', lbl_rate: '為替（VND/JPY）', hint_rate: '推奨: 共通設定から取得し、毎回入力しない',
+        lbl_ship: '日本→VN送料 / 点', lbl_pack: '梱包費 / 点',
+        lbl_sale: 'Shopee売価（VND）', lbl_fee_profile: 'モール手数料プロファイル',
+        fee_default: '標準（14% + VX4% + 決済4.9% + 税）', fee_lite: 'Lite（Voucher Xtraなし）',
+        lbl_tiers: '卸係数（設定画面で変更可）', preview: 'プレビューして保存 →', back: '← 戻る',
+        confirm_help: 'リアルタイム結果を確認し、1回の保存で卸・小売レコードを同時作成。手数料詳細へも遷移可能。',
+        save: '商品を保存', live_title: '利益プレビュー（ライブ）', live_badge: '入力のたびに再計算',
+        cost: '原価 / 点', si10: '卸・小口', si30: '卸・中口', si50: '卸・大口',
+        net: '実受取（Shopee小売）', profit: '推定利益',
+        before_t: 'Before（AS-IS）', after_t: 'After（TO-BE）',
+        before_l: '<li>3タブで別入力、名称・価格が重複</li><li>為替・手数料を毎回入力</li><li>計算ボタン後にしか利益が見えない</li><li>localStorageのみ（端末依存）</li>',
+        after_l: '<li>1ウィザード / 1商品マスタ</li><li>為替・手数料は共通設定</li><li>利益をリアルタイム表示</li><li>クラウド保存・同期を前提</li>',
+        saved: '保存しました（モック）。本番ではDBへ書き込み、一覧を更新します。'
+      }
+    };
+    let lang = 'vi';
+    function setLang(l) {
+      lang = l;
+      document.getElementById('btn-vi').classList.toggle('active', l === 'vi');
+      document.getElementById('btn-ja').classList.toggle('active', l === 'ja');
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const k = el.getAttribute('data-i18n');
+        if (I18N[l][k] != null) el.innerHTML = I18N[l][k];
+      });
+      document.documentElement.lang = l === 'ja' ? 'ja' : 'vi';
+    }
+    function go(n) {
+      [1,2,3].forEach(i => {
+        document.getElementById('pane' + i).classList.toggle('hidden', i !== n);
+        const s = document.getElementById('s' + i);
+        s.classList.remove('on', 'done');
+        if (i < n) s.classList.add('done');
+        if (i === n) s.classList.add('on');
+      });
+      recalc();
+    }
+    function setMode(btn, mode) {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('importFields').style.opacity = mode === 'import' ? 1 : .45;
+    }
+    function fmt(n) { return Math.round(n).toLocaleString() + 'đ'; }
+    function recalc() {
+      const jpy = +document.getElementById('jpy').value || 0;
+      const rate = +document.getElementById('rate').value || 0;
+      const ship = +document.getElementById('ship').value || 0;
+      const pack = +document.getElementById('pack').value || 0;
+      const sale = +document.getElementById('sale').value || 0;
+      const cost = jpy * rate + ship + pack;
+      const tiers = [+t10.value, +t30.value, +t50.value];
+      const prices = tiers.map(t => Math.round(((cost * t) / 0.98) / 1000) * 1000);
+      const lite = document.getElementById('feeProfile').value === 'lite';
+      const fix = sale * 0.14;
+      const vxtra = lite ? 0 : sale * 0.04;
+      const service = 3000 + vxtra;
+      const pay = sale * 0.049;
+      const tax = sale * 0.015;
+      const net = sale - fix - service - pay - tax;
+      const profit = net - cost;
+      outCost.textContent = fmt(cost);
+      out10.textContent = fmt(prices[0]);
+      out30.textContent = fmt(prices[1]);
+      out50.textContent = fmt(prices[2]);
+      outNet.textContent = fmt(net);
+      outProfit.textContent = fmt(profit);
+    }
+    function savedMsg() { return I18N[lang].saved; }
+    recalc();
+  </script>
+</body>
+</html>

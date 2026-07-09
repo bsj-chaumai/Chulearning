@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WBS & Đề xuất cải tiến — Lipstickk Store / 機能分解と改善提案</title>
+  <style>
+    :root {
+      --shopee: #ee4d2d;
+      --ink: #111827;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --bg: #f8fafc;
+      --must: #dc2626;
+      --want: #d97706;
+      --out: #6b7280;
+      --new: #2563eb;
+      --imp: #059669;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Noto Sans JP", "Noto Sans", sans-serif;
+      background:
+        radial-gradient(1200px 500px at 10% -10%, #ffe4e6 0%, transparent 55%),
+        radial-gradient(900px 400px at 100% 0%, #e0e7ff 0%, transparent 50%),
+        var(--bg);
+      color: var(--ink);
+      line-height: 1.55;
+    }
+    .topbar {
+      position: sticky; top: 0; z-index: 30;
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+      background: rgba(255,255,255,.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+    .brand { font-weight: 800; color: var(--shopee); }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .actions a, .actions button {
+      text-decoration: none; color: inherit; border: 1px solid var(--line);
+      background: #fff; border-radius: 8px; padding: 8px 12px; font-size: 13px; font-weight: 650; cursor: pointer;
+    }
+    .actions button.active { background: var(--shopee); color: #fff; border-color: var(--shopee); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 24px 20px 64px; }
+    h1 { font-size: clamp(1.5rem, 2.5vw, 2rem); margin: 0 0 8px; }
+    h2 { font-size: 1.25rem; margin: 32px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #ffe0d8; }
+    h3 { font-size: 1.05rem; margin: 20px 0 8px; }
+    .lead { color: var(--muted); margin-bottom: 18px; }
+    .callout {
+      background: #fff7ed; border: 1px solid #fed7aa; border-radius: 12px;
+      padding: 14px 16px; margin: 16px 0; font-size: 14px;
+    }
+    .grid-cards {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 16px 0;
+    }
+    .card {
+      background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px;
+    }
+    .card b { display: block; margin-bottom: 4px; }
+    .card span { color: var(--muted); font-size: 13px; }
+    table {
+      width: 100%; border-collapse: collapse; background: #fff;
+      border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-size: 13.5px;
+    }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { background: #fff5f2; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; color: #7c2d12; }
+    tr:last-child td { border-bottom: none; }
+    .tag {
+      display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px;
+      border-radius: 999px; white-space: nowrap;
+    }
+    .must { background: #fee2e2; color: var(--must); }
+    .want { background: #ffedd5; color: var(--want); }
+    .out { background: #f3f4f6; color: var(--out); }
+    .new { background: #dbeafe; color: var(--new); }
+    .imp { background: #d1fae5; color: var(--imp); }
+    .phase { background: #eef2ff; color: #3730a3; }
+    .toc a { color: #1d4ed8; text-decoration: none; }
+    .toc li { margin: 4px 0; }
+    .mock-frame {
+      border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+      background: #fff; margin: 12px 0 8px;
+    }
+    .mock-frame iframe { width: 100%; height: 720px; border: 0; display: block; background: #f3f4f6; }
+    .mock-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+    .lang-block { display: none; }
+    .lang-block.show { display: block; }
+    code { background: #f3f4f6; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+    ul.compact li { margin: 4px 0; }
+    .matrix td:first-child { font-weight: 700; white-space: nowrap; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; background: var(--shopee); }
+    footer { margin-top: 40px; color: var(--muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">Lipstickk Store · WBS & Improvements</div>
+    <div class="actions">
+      <button type="button" id="btn-vi" class="active" onclick="setLang('vi')">Tiếng Việt</button>
+      <button type="button" id="btn-ja" onclick="setLang('ja')">日本語</button>
+      <a href="./mockups/input_flow_optimized.html" target="_blank" rel="noopener">Mockup</a>
+      <a href="./source_materials/lipstickk_store_index.html" target="_blank" rel="noopener">Prototype AS-IS</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- ========== VIETNAMESE ========== -->
+    <div id="lang-vi" class="lang-block show">
+      <h1>Phân rã tính năng (WBS) & Đề xuất cải tiến</h1>
+      <p class="lead">Tài liệu tập trung vào <strong>WBS</strong> và <strong>cải tiến / tính năng mới</strong>. Đã bỏ qua các bước tính chi phí / tiền bạc theo yêu cầu.</p>
+
+      <div class="callout">
+        <strong>Nguồn đầu vào:</strong> Prototype hiện tại (<code>docs/source_materials/lipstickk_store_index.html</code>).
+        Phần “thông tin đầu vào” và mockup gốc trong tin nhắn chưa vào được môi trường (nội dung trống / file chưa đính kèm).
+        Mockup bên dưới là <em>bản tham chiếu tối ưu luồng nhập liệu</em> do AI dựng từ phân tích UX; khi bạn gửi lại mockup gốc sẽ gắn kèm / thay thế.
+      </div>
+
+      <div class="grid-cards">
+        <div class="card"><b>AS-IS</b><span>1 file HTML, 3 tab, localStorage, không auth/API</span></div>
+        <div class="card"><b>Mục tiêu tài liệu</b><span>WBS chi tiết + roadmap cải tiến (Must/Want/Out)</span></div>
+        <div class="card"><b>Ngôn ngữ</b><span>VI ⇄ JA (nút góc trên)</span></div>
+        <div class="card"><b>Mockup</b><span>Wizard nhập liệu 1 form, preview lãi realtime</span></div>
+      </div>
+
+      <h2 id="vi-toc">Mục lục</h2>
+      <ol class="toc">
+        <li><a href="#vi-asis">1. Hiện trạng (AS-IS)</a></li>
+        <li><a href="#vi-mock">2. Mockup tối ưu luồng nhập liệu</a></li>
+        <li><a href="#vi-wbs">3. WBS chi tiết (Must / Want / Out)</a></li>
+        <li><a href="#vi-matrix">4. Ma trận Pha × Hạng mục</a></li>
+        <li><a href="#vi-improve">5. Đề xuất cải tiến & tính năng mới</a></li>
+        <li><a href="#vi-roadmap">6. Roadmap Phase</a></li>
+        <li><a href="#vi-nfr">7. Phi chức năng (checklist rút gọn)</a></li>
+        <li><a href="#vi-out">8. Ngoài phạm vi</a></li>
+      </ol>
+
+      <h2 id="vi-asis">1. Hiện trạng (AS-IS)</h2>
+      <table>
+        <thead><tr><th>Module</th><th>Chức năng đã có</th><th>Hạn chế chính</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Quản lý giá sỉ</td>
+            <td>Nhập tên, ảnh, JPY, tỷ giá, ship, đóng gói → 3 mức sỉ (hệ số 1.17 / 1.136 / 1.102) → lưu danh sách</td>
+            <td>Tỷ giá/ship nhập lại mỗi lần; không sửa bản ghi; không SKU</td>
+          </tr>
+          <tr>
+            <td>Quản lý bán lẻ</td>
+            <td>Tên, vốn VND, giá Shopee → lãi xấp xỉ (trừ 25.4%)</td>
+            <td>Công thức khác tab phân tích chi tiết; dễ lệch số</td>
+          </tr>
+          <tr>
+            <td>Phân tích phí chi tiết</td>
+            <td>Phí cố định 14%, hạ tầng 3k, VX 4%, TT ~4.9%, GTGT 1%, TNCN 0.5%</td>
+            <td>Không gắn với sản phẩm đã lưu; hard-code phí; không lưu lịch sử</td>
+          </tr>
+          <tr>
+            <td>Kỹ thuật</td>
+            <td>HTML/CSS/JS thuần, <code>localStorage</code></td>
+            <td>Mất dữ liệu khi đổi máy/xoá cache; không đa người dùng; UI 3 tab trùng nhập</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="vi-mock">2. Mockup tối ưu luồng nhập liệu</h2>
+      <p>Gộp 3 tab thành <strong>1 wizard / 1 master sản phẩm</strong>: thông tin SP → chi phí & giá → xác nhận. Tỷ giá & gói phí lấy từ cài đặt chung; preview lãi realtime.</p>
+      <div class="mock-frame">
+        <iframe title="Input flow mockup" src="./mockups/input_flow_optimized.html" loading="lazy"></iframe>
+      </div>
+      <div class="mock-actions">
+        <a href="./mockups/input_flow_optimized.html" target="_blank" rel="noopener">Mở mockup full-screen</a>
+        <a href="./source_materials/lipstickk_store_index.html" target="_blank" rel="noopener">So sánh với prototype AS-IS</a>
+      </div>
+      <table>
+        <thead><tr><th>AS-IS</th><th>TO-BE (mock)</th></tr></thead>
+        <tbody>
+          <tr><td>3 tab nhập riêng, trùng tên/giá</td><td>1 form thống nhất, lưu 1 lần → sỉ + lẻ</td></tr>
+          <tr><td>Tỷ giá & phí nhập mỗi lần</td><td>Cài đặt chung + chọn “gói phí sàn”</td></tr>
+          <tr><td>Chỉ thấy lãi sau khi bấm tính</td><td>Preview live khi gõ</td></tr>
+          <tr><td>localStorage theo trình duyệt</td><td>Sẵn sàng lưu cloud / đồng bộ (Phase 1+)</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="vi-wbs">3. WBS chi tiết</h2>
+      <p>Chú thích ưu tiên: <span class="tag must">Must</span> bắt buộc · <span class="tag want">Want</span> nên có · <span class="tag out">Out</span> ngoài phạm vi · <span class="tag imp">Cải tiến</span> · <span class="tag new">Mới</span></p>
+
+      <h3>F0. Nền tảng & cấu trúc dữ liệu</h3>
+      <table>
+        <thead><tr><th>ID</th><th>Hạng mục</th><th>Mô tả</th><th>Ưu tiên</th><th>Loại</th></tr></thead>
+        <tbody>
+          <tr><td>F0.1</td><td>Mô hình Product master</td><td>1 sản phẩm = tên, ảnh, SKU, kênh, vốn, giá, hệ số sỉ, gói phí</td><td><span class="tag must">Must</span></td><td><span class="tag imp">Cải tiến</span></td></tr>
+          <tr><td>F0.2</td><td>Cài đặt chung</td><td>Tỷ giá mặc định, ship/pack mặc định, hệ số sỉ, profile phí Shopee</td><td><span class="tag must">Must</span></td><td><span class="tag new">Mới</span></td></tr>
+          <tr><td>F0.3</td><td>Lưu trữ bền vững</td><td>Thay/ bổ sung localStorage bằng cloud DB (hoặc export/import file tối thiểu)</td><td><span class="tag must">Must</span></td><td><span class="tag new">Mới</span></td></tr>
+          <tr><td>F0.4</td><td>Đa ngôn ngữ UI VI/JA</td><td>Toggle ngôn ngữ giao diện (theo yêu cầu tài liệu)</td><td><span class="tag want">Want</span></td><td><span class="tag new">Mới</span></td></tr>
+          <tr><td>F0.5</td><td>Auth cơ bản</td><td>Đăng nhập 1–vài user cửa hàng</td><td><span class="tag want">Want</span></td><td><span class="tag new">Mới</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>F1. Wizard nhập liệu (theo mockup)</h3>
+      <table>
+        <thead><tr><th>ID</th><th>Hạng mục</th><th>Mô tả</th><th>Ưu tiên</th><th>Loại</th></tr></thead>
+        <tbody>
+          <tr><td>F1.1</td><td>Bước 1 — Thông tin SP</td><td>Tên, ảnh (nén), SKU, kênh bán</td><td><span class="tag must">Must</span></td><td><span class="tag imp">Cải tiến</span></td></tr>
+          <tr><td>F1.2</td><td>Bước 2 — Chi phí & giá</td><td>Mode nhập khẩu JPY / nội địa VND; ship; pack; giá bán; chọn profile phí; chỉnh hệ số sỉ</td><td><span class="tag must">Must</span></td><td><span class="tag imp">Cải tiến</span></td></tr>
+          <tr><td>F1.3</td><td>Preview lãi realtime</td><td>Vốn, 3 mức sỉ, thực nhận, lãi — cập nhật khi gõ</td><td><span class="tag must">Must</span></td><td><span class="tag new">Mới</span></td></tr>
+          <tr><td>F1.4</td><td>Bước 3 — Xác nhận & lưu 1 lần</td><td>Tạo đồng thời bản ghi phục vụ sỉ + lẻ + sẵn sàng mở breakdown phí</td><td><span class="tag must">Must</span></td><td><span class="tag imp">Cải tiến</span></td></tr>
+          <tr><td>F1.5</td><td>Sửa / xoá / nhân bản SP</td><td>CRUD đầy đủ (AS-IS chỉ thêm/xoá)</td><td><span class="tag must">Must</span></td><td><span class="tag imp">Cải tiến</span></td></tr>
+          <tr><td>F1.6</td><td>Validate & làm tròn</td><td>Bắt buộc trường; làm tròn 1.000đ; cảnh báo lãi âm</td><td><span class="tag must">Must</span></td><td><span class="tag new">Mới</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>F2. Giá sỉ</h3>
+      <table>
+        <thead><tr><th>ID</th><th>Hạng mục</th><th>Mô tả</th><th>Ưu tiên</th><th>Loại</th></tr></thead>
+        <tbody>
+          <tr><td>F2.1</td><td>Công thức 3 bậc (giữ logic cũ)</td><td><code>round((vốn × hệ số)/0.98, 1000)</code></td><td><span class="tag must">Must</span></td><td>Giữ</td></tr>
+          <tr><td>F2.2</td><td>Bảng danh sách sỉ</td><td>Ảnh, tên, vốn, 3 giá + lãi, tìm kiếm</td><td><span class="tag must">Must</span></td><td><span class="tag imp">Cải tiến</span></td></tr>
+          <tr><td>F2.3</td><td>Tuỳ biến bậc / hệ số theo SP</td><td>Override hệ số từng sản phẩm</td><td><span class="tag want">Want</span></td><td><span class="tag new">Mới</span></td></tr>
+          <tr><td>F2.4</td><td>Bảng giá PDF/ảnh để gửi khách</td><td>Export nhanh danh sách sỉ</td><td><span class="tag want">Want</span></td><td><span class="tag new">Mới</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>F3. Bán lẻ & phân tích phí Shopee</h3>
+      <table>
+        <thead><tr><th>ID</th><th>Hạng mục</th><th>Mô tả</th><th>Ưu tiên</th><th>Loại</th></tr></thead>
+        <tbody>
+          <tr><td>F3.1</td><td>Thống nhất công thức lãi</td><td>Bỏ xấp xỉ 25.4%; luôn dùng breakdown chi tiết</td><td><span class="tag must">Must</span></td><td><span class="tag imp">Cải tiến</span></td></tr>
+          <tr><td>F3.2</td><td>Breakdown phí gắn SP</td><td>Mở từ sản phẩm đã lưu, không nhập lại vốn/giá</td><td><span class="tag must">Must</span></td><td><span class="tag imp">Cải tiến</span></td></tr>
+          <tr><td>F3.3</td><td>Profile phí có phiên bản</td><td>Lưu ngày hiệu lực khi Shopee đổi phí</td><td><span class="tag want">Want</span></td><td><span class="tag new">Mới</span></td></tr>
+          <tr><td>F3.4</td><td>Mô phỏng “nếu đổi giá bán”</td><td>Slider/input thử giá → lãi tức thì</td><td><span class="tag want">Want</span></td><td><span class="tag new">Mới</span></td></tr>
+          <tr><td>F3.5</td><td>Shopee API đồng bộ đơn</td><td>Kéo đơn/phí thật</td><td><span class="tag out">Out</span> (Phase sau)</td><td><span class="tag new">Mới</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>F4. Danh mục, báo cáo, vận hành</h3>
+      <table>
+        <thead><tr><th>ID</th><th>Hạng mục</th><th>Mô tả</th><th>Ưu tiên</th><th>Loại</th></tr></thead>
+        <tbody>
+          <tr><td>F4.1</td><td>Tìm kiếm / lọc / sort</td><td>Theo tên, SKU, biên lãi, kênh</td><td><span class="tag must">Must</span></td><td><span class="tag new">Mới</span></td></tr>
+          <tr><td>F4.2</td><td>Export CSV / Excel</td><td>Xuất danh mục + lãi</td><td><span class="tag must">Must</span></td><td><span class="tag new">Mới</span></td></tr>
+          <tr><td>F4.3</td><td>Dashboard biên lãi</td><td>Top lãi / lỗ, số SP, trung bình margin</td><td><span class="tag want">Want</span></td><td><span class="tag new">Mới</span></td></tr>
+          <tr><td>F4.4</td><td>Cảnh báo tỷ giá lệch</td><td>Nhắc cập nhật tỷ giá định kỳ</td><td><span class="tag want">Want</span></td><td><span class="tag new">Mới</span></td></tr>
+          <tr><td>F4.5</td><td>Quản lý tồn kho / đơn hàng</td><td>Nhập-xuất kho, trạng thái đơn</td><td><span class="tag out">Out</span></td><td><span class="tag new">Mới</span></td></tr>
+          <tr><td>F4.6</td><td>App native iOS/Android</td><td>—</td><td><span class="tag out">Out</span></td><td>—</td></tr>
+        </tbody>
+      </table>
+
+      <h3>F5. Công việc kỹ thuật / QA (không tính tiền, chỉ để không sót)</h3>
+      <table>
+        <thead><tr><th>ID</th><th>Hạng mục</th><th>Ưu tiên</th></tr></thead>
+        <tbody>
+          <tr><td>F5.1</td><td>Responsive mobile web</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>F5.2</td><td>Unit test công thức vốn / sỉ / phí</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>F5.3</td><td>Migration dữ liệu từ localStorage cũ</td><td><span class="tag want">Want</span></td></tr>
+          <tr><td>F5.4</td><td>Backup / restore</td><td><span class="tag want">Want</span></td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="vi-matrix">4. Ma trận Pha × Hạng mục (lưới chống sót)</h2>
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>Pha \ Hạng mục</th>
+            <th>FE Web</th>
+            <th>API/DB</th>
+            <th>Cài đặt</th>
+            <th>Báo cáo</th>
+            <th>QA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Yêu cầu / UX</td><td>●</td><td>●</td><td>●</td><td>●</td><td>—</td></tr>
+          <tr><td>Thiết kế UI</td><td>● (wizard)</td><td>—</td><td>●</td><td>●</td><td>—</td></tr>
+          <tr><td>Phát triển</td><td>● F1–F4</td><td>● F0.3/0.5</td><td>● F0.2</td><td>● F4</td><td>—</td></tr>
+          <tr><td>Kiểm thử</td><td>●</td><td>●</td><td>●</td><td>●</td><td>● F5.2</td></tr>
+          <tr><td>Phát hành</td><td>● host tĩnh/PWA</td><td>● deploy</td><td>—</td><td>—</td><td>●</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="vi-improve">5. Đề xuất cải tiến & tính năng mới (ưu tiên)</h2>
+      <ol>
+        <li><strong>Gộp luồng nhập liệu (Must)</strong> — đúng hướng mockup: hết trùng tab, preview lãi live.</li>
+        <li><strong>Cài đặt chung tỷ giá / phí / hệ số sỉ (Must)</strong> — giảm lỗi nhập tay.</li>
+        <li><strong>Thống nhất công thức lãi (Must)</strong> — một engine dùng cho list + breakdown.</li>
+        <li><strong>Lưu cloud + tìm kiếm/export (Must)</strong> — dùng được nhiều máy.</li>
+        <li><strong>Mô phỏng đổi giá bán (Want)</strong> — quyết định giá nhanh hơn.</li>
+        <li><strong>Bảng giá sỉ xuất PDF (Want)</strong> — gửi khách sỉ.</li>
+        <li><strong>UI song ngữ VI/JA (Want)</strong> — khớp cách làm việc JP–VN.</li>
+        <li><strong>Shopee API / tồn kho (Out → Phase sau)</strong> — khi vận hành ổn định.</li>
+      </ol>
+
+      <h2 id="vi-roadmap">6. Roadmap đề xuất</h2>
+      <table>
+        <thead><tr><th>Phase</th><th>Nội dung</th><th>Kết quả</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag phase">Phase 0</span></td><td>Chốt WBS + gắn mockup gốc (khi nhận được)</td><td>Phạm vi rõ</td></tr>
+          <tr><td><span class="tag phase">Phase 1 — MVP</span></td><td>F0.1–0.3, F1.*, F2.1–2.2, F3.1–3.2, F4.1–4.2, F5.1–5.2</td><td>Dùng hàng ngày thay Excel/prototype</td></tr>
+          <tr><td><span class="tag phase">Phase 2</span></td><td>F0.4–0.5, F2.3–2.4, F3.3–3.4, F4.3–4.4</td><td>Tiện vận hành & báo cáo</td></tr>
+          <tr><td><span class="tag phase">Phase 3</span></td><td>F3.5, F4.5…</td><td>Tích hợp sàn / kho</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="vi-nfr">7. Phi chức năng (rút gọn)</h2>
+      <ul class="compact">
+        <li><strong>Hiệu năng:</strong> tính lại preview &lt; 50ms trên list ~500 SP</li>
+        <li><strong>Bảo mật:</strong> nếu có auth/cloud — HTTPS, không lộ phí/nguồn gốc công khai</li>
+        <li><strong>Khả dụng:</strong> backup/export định kỳ</li>
+        <li><strong>Khả năng mở rộng:</strong> profile phí theo phiên bản; sẵn sàng gắn API sau</li>
+      </ul>
+
+      <h2 id="vi-out">8. Ngoài phạm vi (tạm thời)</h2>
+      <ul class="compact">
+        <li>Tính toán chi phí dự án / báo giá tiền bạc (theo yêu cầu bỏ qua)</li>
+        <li>Shopee Open API, đồng bộ đơn thật</li>
+        <li>Quản lý kho / kế toán đầy đủ</li>
+        <li>Ứng dụng native store</li>
+      </ul>
+    </div>
+
+    <!-- ========== JAPANESE ========== -->
+    <div id="lang-ja" class="lang-block">
+      <h1>機能分解（WBS）と改善・新機能提案</h1>
+      <p class="lead">本ドキュメントは<strong>WBS</strong>と<strong>改善／新機能提案</strong>に限定します。コスト・金額算出ステップは依頼によりスキップしています。</p>
+
+      <div class="callout">
+        <strong>インプット:</strong> 現行プロトタイプ（<code>docs/source_materials/lipstickk_store_index.html</code>）。
+        メッセージ内の「案件インプット本文」と原本モックは環境未着（本文空欄／ファイル未添付）でした。
+        下記モックはUX分析に基づく<em>参照モック（入力フロー最適化）</em>です。原本受領後に差し替え／併記します。
+      </div>
+
+      <div class="grid-cards">
+        <div class="card"><b>AS-IS</b><span>単一HTML・3タブ・localStorage・認証/APIなし</span></div>
+        <div class="card"><b>本資料の目的</b><span>詳細WBS + 改善ロードマップ（Must/Want/Out）</span></div>
+        <div class="card"><b>言語</b><span>VI ⇄ JA（上部ボタン）</span></div>
+        <div class="card"><b>モック</b><span>1フォームの入力ウィザード＋利益ライブプレビュー</span></div>
+      </div>
+
+      <h2 id="ja-toc">目次</h2>
+      <ol class="toc">
+        <li><a href="#ja-asis">1. 現状（AS-IS）</a></li>
+        <li><a href="#ja-mock">2. 入力フロー最適化モック</a></li>
+        <li><a href="#ja-wbs">3. 詳細WBS（Must / Want / Out）</a></li>
+        <li><a href="#ja-matrix">4. フェーズ×カテゴリ行列</a></li>
+        <li><a href="#ja-improve">5. 改善・新機能提案</a></li>
+        <li><a href="#ja-roadmap">6. ロードマップ</a></li>
+        <li><a href="#ja-nfr">7. 非機能（要約）</a></li>
+        <li><a href="#ja-out">8. 対象外</a></li>
+      </ol>
+
+      <h2 id="ja-asis">1. 現状（AS-IS）</h2>
+      <table>
+        <thead><tr><th>モジュール</th><th>既存機能</th><th>主な課題</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>卸価格管理</td>
+            <td>名称・画像・JPY・為替・送料・梱包 → 卸3段階（係数1.17/1.136/1.102）→一覧保存</td>
+            <td>為替等を毎回入力、編集不可、SKUなし</td>
+          </tr>
+          <tr>
+            <td>小売管理</td>
+            <td>名称・原価VND・Shopee売価 → 利益概算（25.4%控除）</td>
+            <td>詳細分析タブと計算式が不一致</td>
+          </tr>
+          <tr>
+            <td>手数料詳細分析</td>
+            <td>固定14%・インフラ3k・VX4%・決済~4.9%・GTGT1%・TNCN0.5%</td>
+            <td>保存商品と非連携、料率ハードコード、履歴なし</td>
+          </tr>
+          <tr>
+            <td>技術</td>
+            <td>素のHTML/CSS/JS、<code>localStorage</code></td>
+            <td>端末依存、マルチユーザー不可、3タブで入力重複</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 id="ja-mock">2. 入力フロー最適化モック</h2>
+      <p>3タブを<strong>1ウィザード／1商品マスタ</strong>に統合。共通設定の為替・手数料プロファイル、利益のリアルタイムプレビュー。</p>
+      <div class="mock-frame">
+        <iframe title="Input flow mockup JA" src="./mockups/input_flow_optimized.html" loading="lazy"></iframe>
+      </div>
+      <div class="mock-actions">
+        <a href="./mockups/input_flow_optimized.html" target="_blank" rel="noopener">モックを全画面で開く</a>
+        <a href="./source_materials/lipstickk_store_index.html" target="_blank" rel="noopener">AS-ISプロトタイプと比較</a>
+      </div>
+      <table>
+        <thead><tr><th>AS-IS</th><th>TO-BE（モック）</th></tr></thead>
+        <tbody>
+          <tr><td>3タブで別入力、名称・価格が重複</td><td>1フォームで保存1回→卸＋小売</td></tr>
+          <tr><td>為替・手数料を毎回入力</td><td>共通設定＋手数料プロファイル選択</td></tr>
+          <tr><td>計算ボタン後にしか利益が見えない</td><td>入力のたびにライブ表示</td></tr>
+          <tr><td>ブラウザlocalStorageのみ</td><td>クラウド保存・同期を前提（Phase1+）</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="ja-wbs">3. 詳細WBS</h2>
+      <p>凡例: <span class="tag must">Must</span>必須 · <span class="tag want">Want</span>あると良い · <span class="tag out">Out</span>対象外 · <span class="tag imp">改善</span> · <span class="tag new">新規</span></p>
+
+      <h3>F0. 基盤・データモデル</h3>
+      <table>
+        <thead><tr><th>ID</th><th>項目</th><th>概要</th><th>優先</th><th>種別</th></tr></thead>
+        <tbody>
+          <tr><td>F0.1</td><td>Productマスタ</td><td>1商品＝名称・画像・SKU・チャネル・原価・売価・卸係数・手数料プロファイル</td><td><span class="tag must">Must</span></td><td><span class="tag imp">改善</span></td></tr>
+          <tr><td>F0.2</td><td>共通設定</td><td>デフォルト為替・送料/梱包・卸係数・Shopee手数料プロファイル</td><td><span class="tag must">Must</span></td><td><span class="tag new">新規</span></td></tr>
+          <tr><td>F0.3</td><td>永続化</td><td>localStorageの置換／併用（クラウドDB、または最低限のexport/import）</td><td><span class="tag must">Must</span></td><td><span class="tag new">新規</span></td></tr>
+          <tr><td>F0.4</td><td>UI多言語 VI/JA</td><td>画面言語トグル</td><td><span class="tag want">Want</span></td><td><span class="tag new">新規</span></td></tr>
+          <tr><td>F0.5</td><td>基本認証</td><td>店舗の1〜数ユーザーログイン</td><td><span class="tag want">Want</span></td><td><span class="tag new">新規</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>F1. 入力ウィザード（モック準拠）</h3>
+      <table>
+        <thead><tr><th>ID</th><th>項目</th><th>概要</th><th>優先</th><th>種別</th></tr></thead>
+        <tbody>
+          <tr><td>F1.1</td><td>Step1 商品情報</td><td>名称・画像（圧縮）・SKU・販売チャネル</td><td><span class="tag must">Must</span></td><td><span class="tag imp">改善</span></td></tr>
+          <tr><td>F1.2</td><td>Step2 原価と価格</td><td>輸入JPY／国内VND、送料、梱包、売価、手数料プロファイル、卸係数</td><td><span class="tag must">Must</span></td><td><span class="tag imp">改善</span></td></tr>
+          <tr><td>F1.3</td><td>利益ライブプレビュー</td><td>原価・卸3段階・実受取・利益を入力即反映</td><td><span class="tag must">Must</span></td><td><span class="tag new">新規</span></td></tr>
+          <tr><td>F1.4</td><td>Step3 確認＆一括保存</td><td>卸・小売レコードを同時作成、手数料詳細へ遷移可能</td><td><span class="tag must">Must</span></td><td><span class="tag imp">改善</span></td></tr>
+          <tr><td>F1.5</td><td>編集／削除／複製</td><td>CRUD（現行は追加・削除のみ）</td><td><span class="tag must">Must</span></td><td><span class="tag imp">改善</span></td></tr>
+          <tr><td>F1.6</td><td>バリデーション＆丸め</td><td>必須チェック、1,000đ丸め、赤字警告</td><td><span class="tag must">Must</span></td><td><span class="tag new">新規</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>F2. 卸価格</h3>
+      <table>
+        <thead><tr><th>ID</th><th>項目</th><th>概要</th><th>優先</th><th>種別</th></tr></thead>
+        <tbody>
+          <tr><td>F2.1</td><td>3段階計算（現行ロジック維持）</td><td><code>round((原価×係数)/0.98, 1000)</code></td><td><span class="tag must">Must</span></td><td>維持</td></tr>
+          <tr><td>F2.2</td><td>卸一覧</td><td>画像・名称・原価・3価格＋利益・検索</td><td><span class="tag must">Must</span></td><td><span class="tag imp">改善</span></td></tr>
+          <tr><td>F2.3</td><td>商品別係数オーバーライド</td><td>商品ごとに係数変更</td><td><span class="tag want">Want</span></td><td><span class="tag new">新規</span></td></tr>
+          <tr><td>F2.4</td><td>卸価格表のPDF/画像出力</td><td>顧客送付用</td><td><span class="tag want">Want</span></td><td><span class="tag new">新規</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>F3. 小売＆Shopee手数料分析</h3>
+      <table>
+        <thead><tr><th>ID</th><th>項目</th><th>概要</th><th>優先</th><th>種別</th></tr></thead>
+        <tbody>
+          <tr><td>F3.1</td><td>利益計算式の統一</td><td>25.4%概算を廃止し、詳細内訳エンジンに一本化</td><td><span class="tag must">Must</span></td><td><span class="tag imp">改善</span></td></tr>
+          <tr><td>F3.2</td><td>商品連動の内訳表示</td><td>保存済み商品から原価・売価を引き継ぎ</td><td><span class="tag must">Must</span></td><td><span class="tag imp">改善</span></td></tr>
+          <tr><td>F3.3</td><td>手数料プロファイルの版管理</td><td>料率改定日を保持</td><td><span class="tag want">Want</span></td><td><span class="tag new">新規</span></td></tr>
+          <tr><td>F3.4</td><td>売価シミュレーション</td><td>売価を動かして利益を即確認</td><td><span class="tag want">Want</span></td><td><span class="tag new">新規</span></td></tr>
+          <tr><td>F3.5</td><td>Shopee API連携</td><td>実注文・実手数料の同期</td><td><span class="tag out">Out</span>（後続）</td><td><span class="tag new">新規</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>F4. カタログ・レポート・運用</h3>
+      <table>
+        <thead><tr><th>ID</th><th>項目</th><th>概要</th><th>優先</th><th>種別</th></tr></thead>
+        <tbody>
+          <tr><td>F4.1</td><td>検索／フィルタ／ソート</td><td>名称・SKU・粗利・チャネル</td><td><span class="tag must">Must</span></td><td><span class="tag new">新規</span></td></tr>
+          <tr><td>F4.2</td><td>CSV/Excel出力</td><td>商品＋利益のエクスポート</td><td><span class="tag must">Must</span></td><td><span class="tag new">新規</span></td></tr>
+          <tr><td>F4.3</td><td>粗利ダッシュボード</td><td>上位／赤字、平均マージン</td><td><span class="tag want">Want</span></td><td><span class="tag new">新規</span></td></tr>
+          <tr><td>F4.4</td><td>為替更新リマインド</td><td>定期的な更新促し</td><td><span class="tag want">Want</span></td><td><span class="tag new">新規</span></td></tr>
+          <tr><td>F4.5</td><td>在庫／受注管理</td><td>入出庫・注文ステータス</td><td><span class="tag out">Out</span></td><td><span class="tag new">新規</span></td></tr>
+          <tr><td>F4.6</td><td>ネイティブアプリ</td><td>—</td><td><span class="tag out">Out</span></td><td>—</td></tr>
+        </tbody>
+      </table>
+
+      <h3>F5. 技術・QA（金額なし・抜け漏れ防止）</h3>
+      <table>
+        <thead><tr><th>ID</th><th>項目</th><th>優先</th></tr></thead>
+        <tbody>
+          <tr><td>F5.1</td><td>モバイルWeb対応</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>F5.2</td><td>原価／卸／手数料のユニットテスト</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>F5.3</td><td>旧localStorageからの移行</td><td><span class="tag want">Want</span></td></tr>
+          <tr><td>F5.4</td><td>バックアップ／リストア</td><td><span class="tag want">Want</span></td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="ja-matrix">4. フェーズ×カテゴリ行列</h2>
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>フェーズ \ カテゴリ</th>
+            <th>FE Web</th>
+            <th>API/DB</th>
+            <th>設定</th>
+            <th>レポート</th>
+            <th>QA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>要件／UX</td><td>●</td><td>●</td><td>●</td><td>●</td><td>—</td></tr>
+          <tr><td>UIデザイン</td><td>●（ウィザード）</td><td>—</td><td>●</td><td>●</td><td>—</td></tr>
+          <tr><td>開発</td><td>● F1–F4</td><td>● F0.3/0.5</td><td>● F0.2</td><td>● F4</td><td>—</td></tr>
+          <tr><td>テスト</td><td>●</td><td>●</td><td>●</td><td>●</td><td>● F5.2</td></tr>
+          <tr><td>リリース</td><td>● 静的/PWA</td><td>● デプロイ</td><td>—</td><td>—</td><td>●</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="ja-improve">5. 改善・新機能提案（優先順）</h2>
+      <ol>
+        <li><strong>入力フロー統合（Must）</strong> — モック方針：タブ重複解消、利益ライブ表示。</li>
+        <li><strong>為替／手数料／卸係数の共通設定（Must）</strong> — 手入力ミス削減。</li>
+        <li><strong>利益計算式の一本化（Must）</strong> — 一覧と内訳で同一エンジン。</li>
+        <li><strong>クラウド保存＋検索／エクスポート（Must）</strong> — 複数端末利用。</li>
+        <li><strong>売価シミュレーション（Want）</strong> — 価格決定を高速化。</li>
+        <li><strong>卸価格表PDF（Want）</strong> — 卸先への共有。</li>
+        <li><strong>UIのVI/JA切替（Want）</strong> — 日越協業に適合。</li>
+        <li><strong>Shopee API／在庫（Out→後続）</strong> — 運用安定後。</li>
+      </ol>
+
+      <h2 id="ja-roadmap">6. ロードマップ案</h2>
+      <table>
+        <thead><tr><th>Phase</th><th>内容</th><th>成果</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag phase">Phase 0</span></td><td>WBS確定＋原本モック反映（受領後）</td><td>スコープ明確化</td></tr>
+          <tr><td><span class="tag phase">Phase 1 — MVP</span></td><td>F0.1–0.3, F1.*, F2.1–2.2, F3.1–3.2, F4.1–4.2, F5.1–5.2</td><td>日常利用可能な置換</td></tr>
+          <tr><td><span class="tag phase">Phase 2</span></td><td>F0.4–0.5, F2.3–2.4, F3.3–3.4, F4.3–4.4</td><td>運用・レポート強化</td></tr>
+          <tr><td><span class="tag phase">Phase 3</span></td><td>F3.5, F4.5…</td><td>モール／在庫連携</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="ja-nfr">7. 非機能（要約）</h2>
+      <ul class="compact">
+        <li><strong>性能:</strong> プレビュー再計算 &lt; 50ms（約500商品）</li>
+        <li><strong>セキュリティ:</strong> 認証/クラウド時はHTTPS、料率・仕入情報の露出防止</li>
+        <li><strong>可用性:</strong> 定期バックアップ／エクスポート</li>
+        <li><strong>拡張性:</strong> 手数料プロファイルの版管理、将来のAPI接続余地</li>
+      </ul>
+
+      <h2 id="ja-out">8. 対象外（当面）</h2>
+      <ul class="compact">
+        <li>プロジェクト費用・金額見積（依頼によりスキップ）</li>
+        <li>Shopee Open API・実注文同期</li>
+        <li>本格在庫／会計</li>
+        <li>ネイティブストアアプリ</li>
+      </ul>
+    </div>
+
+    <footer>
+      Generated 2026-07-09 · sources: prototype + UX-derived input-flow mock · no cost estimation
+    </footer>
+  </div>
+
+  <script>
+    function setLang(l) {
+      document.getElementById('lang-vi').classList.toggle('show', l === 'vi');
+      document.getElementById('lang-ja').classList.toggle('show', l === 'ja');
+      document.getElementById('btn-vi').classList.toggle('active', l === 'vi');
+      document.getElementById('btn-ja').classList.toggle('active', l === 'ja');
+      document.documentElement.lang = l === 'ja' ? 'ja' : 'vi';
+      try { localStorage.setItem('wbs_doc_lang', l); } catch (e) {}
+    }
+    try {
+      const saved = localStorage.getItem('wbs_doc_lang');
+      if (saved === 'ja' || saved === 'vi') setLang(saved);
+    } catch (e) {}
+  </script>
+</body>
+</html>
