@@ -173,12 +173,51 @@
     .mock-box {
       margin-top: 14px; border: 1px solid var(--line); border-radius: 14px;
       overflow: hidden; background: #fff;
+      box-shadow: 0 10px 28px rgba(30,77,140,.08);
     }
     .mock-box .cap {
-      padding: 10px 14px; background: var(--navy-soft); font-size: 13px; font-weight: 700; color: var(--navy);
+      padding: 12px 14px; background: var(--navy-soft); font-size: 13px; font-weight: 700; color: var(--navy);
       display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: center;
     }
-    .mock-box iframe { width: 100%; height: 720px; border: 0; display: block; background: #f8fafc; }
+    .mock-box .cap .btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .mock-box .cap button, .mock-box .cap a {
+      border: 1px solid #bfdbfe; background: #fff; color: var(--navy);
+      border-radius: 8px; padding: 7px 11px; font-size: 12px; font-weight: 700;
+      cursor: pointer; text-decoration: none;
+    }
+    .mock-box iframe {
+      width: 100%; height: 760px; border: 0; display: block; background: #f8fafc;
+      transition: height .25s ease;
+    }
+    .mock-box.tall iframe { height: min(92vh, 1100px); }
+
+    .demo-guide {
+      display: grid; grid-template-columns: 1.2fr .8fr; gap: 12px; margin: 12px 0;
+    }
+    @media (max-width: 760px) { .demo-guide { grid-template-columns: 1fr; } }
+    .demo-guide .box {
+      background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px;
+      font-size: 13.5px;
+    }
+    .demo-guide .box b { display: block; color: var(--navy); margin-bottom: 6px; }
+    .demo-guide ol, .demo-guide ul { margin: 0; padding-left: 18px; }
+    .demo-guide li { margin: 4px 0; }
+    .demo-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 14px; background: var(--accent); color: #1a2332;
+      border: none; border-radius: 10px; padding: 11px 16px;
+      font-weight: 800; font-size: 14px; cursor: pointer; text-decoration: none;
+    }
+    .demo-cta:hover { filter: brightness(.96); }
+    .methods {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px;
+    }
+    @media (max-width: 560px) { .methods { grid-template-columns: 1fr; } }
+    .methods .m {
+      background: #f8fafc; border: 1px solid var(--line); border-radius: 10px;
+      padding: 10px; font-size: 12.5px;
+    }
+    .methods .m strong { display: block; color: var(--navy); margin-bottom: 2px; }
 
     .flow {
       display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0 4px;
@@ -226,6 +265,7 @@
             <span>Tạo tính năng mũi nhọn (USP), thúc đẩy CVR bản SaaS, nâng năng suất đội ngũ tư vấn (XD).</span>
           </div>
         </div>
+        <p style="margin:16px 0 0"><a class="demo-cta" href="#vi-demo">▶ Xem demo mockup Giai đoạn 1</a></p>
       </section>
 
       <nav class="toc">
@@ -236,6 +276,7 @@
           <li><a href="#vi-3">3. Giải pháp &amp; Định hướng cải tiến</a>
             <ol style="margin-top:4px">
               <li><a href="#vi-p1">Giai đoạn 1 — Tối ưu luồng nhập liệu</a></li>
+              <li><a href="#vi-demo">▶ Demo mockup Giai đoạn 1</a></li>
               <li><a href="#vi-p2">Giai đoạn 2 — Survey thông minh</a></li>
               <li><a href="#vi-p3">Giai đoạn 3 — Output Analytics &amp; 3 mức AI</a></li>
             </ol>
@@ -302,12 +343,47 @@
           <span class="s">4. Điều kiện</span><span class="a">→</span>
           <span class="s">5. Xác nhận</span>
         </div>
-        <div class="mock-box">
-          <div class="cap">
-            <span>Mockup Giai đoạn 1 — Operation Setup Wizard (do dev tạo)</span>
-            <a href="./mockups/operation-setup-wizard-mockup.html" target="_blank" rel="noopener">Mở full-screen</a>
+        <a class="demo-cta" href="#vi-demo">▶ Xem demo mockup bên dưới</a>
+      </section>
+
+      <!-- DEMO -->
+      <section class="phase" id="vi-demo" style="border-color:#1e4d8c; border-width:2px">
+        <div class="phase-head">
+          <span class="phase-num" style="background:var(--accent); color:#1a2332">DEMO</span>
+          <h3 class="phase-title">Mockup tương tác — Operation Setup Wizard (Giai đoạn 1)</h3>
+          <div class="phase-scope">Mockup do dev tạo · 4 nguồn dữ liệu · wizard 5 bước · có thể thao tác ngay trong trang</div>
+        </div>
+
+        <div class="demo-guide">
+          <div class="box">
+            <b>Cách dùng demo</b>
+            <ol>
+              <li>Bấm <strong>「稼働分析セットアップを開始」</strong> trong khung bên dưới để mở wizard.</li>
+              <li>Chọn 1 trong 4 nguồn dữ liệu (khuyến nghị: Excel nhập tay).</li>
+              <li>Upload file mẫu / file của bạn → FE đề xuất map cột.</li>
+              <li>Đi tiếp các bước điều kiện tổng hợp → xác nhận &amp; lưu (mock).</li>
+            </ol>
           </div>
-          <iframe title="Operation Setup Wizard Mockup" src="./mockups/operation-setup-wizard-mockup.html" loading="lazy"></iframe>
+          <div class="box">
+            <b>4 nguồn dữ liệu trong mockup</b>
+            <div class="methods">
+              <div class="m"><strong>① Wifi CSV</strong>clientMac + Unix Timestamp</div>
+              <div class="m"><strong>② Excel vào/ra</strong>ID + thời gian + cổng + cờ</div>
+              <div class="m"><strong>③ Excel nhập tay</strong>Mã NV + thời gian (khuyến nghị)</div>
+              <div class="m"><strong>④ Meraki</strong>Không cần file · Validation</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mock-box" id="mock-box-vi">
+          <div class="cap">
+            <span>Demo nhúng · Operation Setup Wizard</span>
+            <div class="btns">
+              <button type="button" onclick="toggleTall('mock-box-vi')">Phóng to / Thu nhỏ</button>
+              <a href="./mockups/operation-setup-wizard-mockup.html" target="_blank" rel="noopener">Mở tab mới</a>
+            </div>
+          </div>
+          <iframe id="iframe-vi" title="Operation Setup Wizard Mockup" src="./mockups/operation-setup-wizard-mockup.html"></iframe>
         </div>
       </section>
 
@@ -378,6 +454,7 @@
             <span>尖った機能（USP）の創出、SaaSのCVR向上、コンサル（XD）の生産性向上。</span>
           </div>
         </div>
+        <p style="margin:16px 0 0"><a class="demo-cta" href="#ja-demo">▶ フェーズ1デモモックを見る</a></p>
       </section>
 
       <nav class="toc">
@@ -388,6 +465,7 @@
           <li><a href="#ja-3">3. 解決策と改善方針</a>
             <ol style="margin-top:4px">
               <li><a href="#ja-p1">フェーズ1 — 入力フロー最適化</a></li>
+              <li><a href="#ja-demo">▶ デモモック（フェーズ1）</a></li>
               <li><a href="#ja-p2">フェーズ2 — スマートSurvey運用</a></li>
               <li><a href="#ja-p3">フェーズ3 — 出力分析とAI 3段階</a></li>
             </ol>
@@ -453,12 +531,46 @@
           <span class="s">4. 集計条件</span><span class="a">→</span>
           <span class="s">5. 確認</span>
         </div>
-        <div class="mock-box">
-          <div class="cap">
-            <span>フェーズ1モック — Operation Setup Wizard（開発作成の原本）</span>
-            <a href="./mockups/operation-setup-wizard-mockup.html" target="_blank" rel="noopener">全画面で開く</a>
+        <a class="demo-cta" href="#ja-demo">▶ 下のデモモックを見る</a>
+      </section>
+
+      <section class="phase" id="ja-demo" style="border-color:#1e4d8c; border-width:2px">
+        <div class="phase-head">
+          <span class="phase-num" style="background:var(--accent); color:#1a2332">DEMO</span>
+          <h3 class="phase-title">操作デモ — Operation Setup Wizard（フェーズ1）</h3>
+          <div class="phase-scope">開発作成の原本モック · 4データソース · 5ステップ · このページ内で操作可能</div>
+        </div>
+
+        <div class="demo-guide">
+          <div class="box">
+            <b>デモの使い方</b>
+            <ol>
+              <li>下の枠内で <strong>「稼働分析セットアップを開始」</strong> を押してウィザードを開く。</li>
+              <li>4つのデータソースから1つを選ぶ（おすすめ: 手入力Excel）。</li>
+              <li>サンプル／自前ファイルをアップロード → FEがカラムを提案。</li>
+              <li>集計条件 → 確認・保存（モック）まで進む。</li>
+            </ol>
           </div>
-          <iframe title="Operation Setup Wizard Mockup JA" src="./mockups/operation-setup-wizard-mockup.html" loading="lazy"></iframe>
+          <div class="box">
+            <b>モック内の4データソース</b>
+            <div class="methods">
+              <div class="m"><strong>① Wifi CSV</strong>clientMac + Unix Timestamp</div>
+              <div class="m"><strong>② 入退室Excel</strong>ID + 日時 + ゲート + フラグ</div>
+              <div class="m"><strong>③ 手入力Excel</strong>社員ID + 日時（おすすめ）</div>
+              <div class="m"><strong>④ Meraki</strong>ファイル不要 · Validation</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mock-box" id="mock-box-ja">
+          <div class="cap">
+            <span>埋め込みデモ · Operation Setup Wizard</span>
+            <div class="btns">
+              <button type="button" onclick="toggleTall('mock-box-ja')">拡大 / 縮小</button>
+              <a href="./mockups/operation-setup-wizard-mockup.html" target="_blank" rel="noopener">新しいタブで開く</a>
+            </div>
+          </div>
+          <iframe id="iframe-ja" title="Operation Setup Wizard Mockup JA" src="./mockups/operation-setup-wizard-mockup.html"></iframe>
         </div>
       </section>
 
@@ -524,6 +636,10 @@
       document.getElementById('btn-ja').classList.toggle('active', l === 'ja');
       document.documentElement.lang = l === 'ja' ? 'ja' : 'vi';
       try { localStorage.setItem('wdp_proposal_lang', l); } catch (e) {}
+    }
+    function toggleTall(id) {
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle('tall');
     }
     try {
       const s = localStorage.getItem('wdp_proposal_lang');
