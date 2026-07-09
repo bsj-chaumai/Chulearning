@@ -1,0 +1,91 @@
+/* ============================================================================
+   bravesoft Brand Theme — 会社統一の Web 出力用スタイル（単一の正本）
+   ----------------------------------------------------------------------------
+   ・ブランドの正本は ルート DESIGN.md（仕様）。本ファイルはそれを CSS 変数 +
+     コンポーネントに落とした「実装の正本」。全 HTML 出力はこれに従う。
+   ・使い方:
+       (A) 任意の社内 Web 出力で  <link rel="stylesheet" href="assets/brand.css">
+       (B) 配布用の自己完結 HTML（メール添付・どこでも開く）では、本ファイルの
+           :root とコンポーネントを <style> にインライン複製する
+           （report_template.html はこの方式。ファイル単体で完結＝ポータブル）。
+   ・色を変えるとき: DESIGN.md → 本ファイル → 各テンプレの :root の順に反映する。
+   ・図はネット非依存のインライン SVG を既定に（Mermaid CDN に依存しない）。
+   ============================================================================ */
+
+:root{
+  /* --- ブランド（DESIGN.md より） --- */
+  --bs-brand:#0066FF;            /* primary: 最重要アクション・リンク・見出しアクセント */
+  --bs-brand-cta:#2966FF;        /* 実ボタン(resting) = brand-blue-action */
+  --bs-brand-cta-hover:#2247FF;  /* 実ボタン(hover)   = brand-blue-strong */
+  --bs-brand-deep:#3366FF;       /* H2アクセント・補助 */
+  --bs-brand-sky:#3F9CFF;        /* H3アクセント・補助 */
+  --bs-brand-link:#0665FF;       /* 本文リンク */
+  --bs-brand-soft:#E5F0FF;       /* トーナル背景（コールアウト/二次ピル） */
+  --bs-brand-soft-hover:#C3DEFF;
+  --bs-brand-card-hover:#EEF2FA;
+  --bs-navy:#253A58;             /* スタッツタイル・濃色面 */
+
+  /* --- インク & グレーランプ（広い色は使わない。near-black + grey） --- */
+  --bs-ink:#090A0A;              /* 本文テキスト */
+  --bs-ink-strong:#161717;       /* 濃いピル・見出し・コード地 */
+  --bs-ink-muted:#333333;
+  --bs-g700:#303437; --bs-g600:#404446; --bs-g500:#575757;
+  --bs-g400:#6C7072;             /* 主要 muted / サブタイトル */
+  --bs-g350:#72777A;             /* フッターメタ */
+  --bs-g300:#979C9E; --bs-g200:#CDCFD0; --bs-g150:#E3E5E5; /* ヘアライン */
+
+  /* --- サーフェス --- */
+  --bs-surface:#FFFFFF; --bs-surface-subtle:#F7F9FA; --bs-surface-chip:#F2F4F5;
+
+  /* --- ステータス（必ずラベル併記で使う） --- */
+  --bs-success:#00A86B; --bs-error:#D63637; --bs-highlight:#FFE94A;
+
+  /* --- タイポ・形・影（DESIGN.md） --- */
+  --bs-font:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+  --bs-mono:"Roboto Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  --bs-radius-pill:9999px; --bs-radius-lg:12px; --bs-radius-md:8px; --bs-radius-sm:4px;
+  --bs-hairline:1px solid rgba(0,0,0,0.10);
+  --bs-shadow-card:0 8px 24px 0 rgba(0,0,0,0.05);
+  --bs-shadow-raised:0 1px 4px 0 rgba(0,0,0,0.06), 0 1px 1px 0 rgba(0,0,0,0.04);
+}
+
+/* ---- base ---- */
+.bs-doc{font-family:var(--bs-font);color:var(--bs-ink);line-height:1.85;background:var(--bs-surface);font-weight:400;-webkit-font-smoothing:antialiased;}
+.bs-doc a{color:var(--bs-brand-link);}
+.bs-doc h1{font-size:2rem;font-weight:700;color:var(--bs-ink);letter-spacing:-.01em;line-height:1.3;}
+.bs-doc h3{font-size:1.12rem;font-weight:700;color:var(--bs-ink-strong);}
+.bs-doc code{font-family:var(--bs-mono);background:var(--bs-surface-chip);color:var(--bs-brand-deep);padding:.1em .35em;border-radius:var(--bs-radius-sm);}
+
+/* ---- eyebrow（Roboto Mono の英字ラベル） ---- */
+.bs-eyebrow{font-family:var(--bs-mono);font-size:.78rem;font-weight:500;letter-spacing:.08em;color:var(--bs-g400);text-transform:uppercase;}
+
+/* ---- section heading: 4px ブランド青の左バー + Mono番号 + 和文見出し ---- */
+.bs-section{border-left:4px solid var(--bs-brand);padding-left:15px;margin:2.6rem 0 .3rem;}
+.bs-section .bs-num{font-family:var(--bs-mono);font-size:.8rem;letter-spacing:.08em;color:var(--bs-brand);}
+.bs-section h2{margin:.05rem 0 0;font-size:1.5rem;font-weight:700;color:var(--bs-ink);}
+
+/* ---- 結論コールアウト ---- */
+.bs-conclusion{background:var(--bs-brand-soft);border-left:4px solid var(--bs-brand);border-radius:0 var(--bs-radius-lg) var(--bs-radius-lg) 0;padding:1.2rem 1.4rem;}
+
+/* ---- KPI スタッツタイル（navy + Roboto Mono） ---- */
+.bs-stat{background:var(--bs-navy);color:#fff;border-radius:var(--bs-radius-lg);padding:18px 20px;}
+.bs-stat .bs-num{font-family:var(--bs-mono);font-size:2rem;font-weight:700;line-height:1.05;}
+
+/* ---- pill / chip ---- */
+.bs-pill{display:inline-block;background:var(--bs-brand-soft);color:var(--bs-brand);font-weight:700;padding:.45rem 1.05rem;border-radius:var(--bs-radius-pill);}
+.bs-btn{background:var(--bs-brand-cta);color:#fff;border:none;border-radius:var(--bs-radius-pill);padding:.6rem 1.3rem;font-weight:700;font-family:inherit;cursor:pointer;}
+.bs-btn:hover{background:var(--bs-brand-cta-hover);}
+
+/* ---- table（ink-strong ヘッダ + ゼブラ + ヘアライン） ---- */
+.bs-table{border-collapse:collapse;width:100%;font-size:.9rem;}
+.bs-table th,.bs-table td{border:1px solid var(--bs-g150);padding:.55rem .7rem;}
+.bs-table thead th{background:var(--bs-ink-strong);color:#fff;font-weight:700;}
+.bs-table tbody tr:nth-child(even){background:var(--bs-surface-subtle);}
+
+/* ---- highlight / footer ---- */
+.bs-hl{background:var(--bs-highlight);padding:0 .15em;border-radius:2px;font-weight:700;}
+.bs-footer{border-top:1px solid var(--bs-g150);color:var(--bs-g350);font-size:.78rem;display:flex;align-items:center;justify-content:space-between;padding-top:1.1rem;}
+.bs-footer img{height:20px;width:auto;}
+
+@media print{ .bs-btn,.bs-screen-only{display:none!important;} .bs-doc a{color:var(--bs-ink);text-decoration:none;} }
+@page{ margin:16mm 14mm; }

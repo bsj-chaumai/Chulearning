@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>概算御見積書（提出用）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#0066FF; --deep:#3366FF; --navy:#253A58;
+    --ink:#090A0A; --ink-strong:#161717; --muted:#6C7072;
+    --soft:#E5F0FF; --hairline:#E3E5E5; --subtle:#F7F9FA; --chip:#F2F4F5;
+    --surface:#FFFFFF;
+    --sans:"Noto Sans JP",system-ui,sans-serif; --mono:"Roboto Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{font-family:var(--sans);color:var(--ink);background:var(--subtle);margin:0;line-height:1.7;font-size:13.5px}
+  body::before{content:"";position:fixed;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,var(--primary),#3F9CFF);z-index:10}
+  .sheet{max-width:880px;margin:22px auto;background:var(--surface);padding:36px 40px 40px;border:1px solid var(--hairline)}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  /* header */
+  .head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid var(--primary);padding-bottom:14px;margin-bottom:8px}
+  .logo{height:26px;display:block;margin-bottom:12px}
+  h1{font-size:25px;font-weight:700;margin:0;letter-spacing:.06em}
+  .subtitle{font-size:13px;color:var(--muted);margin:6px 0 0;max-width:560px}
+  .conf{display:inline-block;background:var(--navy);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.12em;padding:3px 11px;border-radius:4px}
+  .metaline{display:flex;justify-content:space-between;align-items:flex-end;margin:14px 0 22px;flex-wrap:wrap;gap:10px}
+  .to{font-size:16px;font-weight:700}
+  .meta{font-size:12px;color:var(--muted);text-align:right}
+  .meta b{color:var(--ink);font-weight:500}
+  .total{text-align:right;margin-top:6px}
+  .total .lbl{font-size:11.5px;color:var(--muted)}
+  .total .amt{font-family:var(--mono);font-size:27px;font-weight:500;color:var(--primary);line-height:1.1}
+  /* section heading */
+  h2{font-size:13.5px;font-weight:700;margin:24px 0 9px;padding-left:9px;border-left:4px solid var(--primary)}
+  /* estimate table */
+  table.est{width:100%;border-collapse:collapse;font-size:12px}
+  table.est th,table.est td{border:1px solid var(--hairline);padding:6px 8px;text-align:left;vertical-align:middle}
+  table.est thead th{background:var(--primary);color:#fff;font-weight:500;font-size:11.5px;text-align:center;border-color:var(--primary)}
+  table.est td.cat{background:var(--soft);color:var(--navy);font-weight:700;white-space:nowrap;text-align:center}
+  table.est td.r{text-align:right;font-family:var(--mono);white-space:nowrap}
+  table.est td.c{text-align:center;white-space:nowrap}
+  table.est tr.mng td{background:var(--subtle)}
+  table.est tr.total td{background:var(--navy);color:#fff;font-weight:700;font-size:14px;border-color:var(--navy)}
+  table.est tr.total td.r{font-family:var(--mono)}
+  /* tax block */
+  .taxbox{margin:10px 0 0;margin-left:auto;width:300px;font-size:12.5px}
+  .taxbox tr td{padding:5px 6px;border-bottom:1px solid var(--hairline)}
+  .taxbox td:last-child{text-align:right;font-family:var(--mono)}
+  .taxbox .g td{border-top:2px solid var(--navy);border-bottom:none;font-weight:700;font-size:15px;color:var(--navy);padding-top:8px}
+  /* gray info boxes */
+  .box{background:var(--subtle);border:1px solid var(--hairline);border-radius:8px;padding:12px 16px;font-size:12.5px;margin-top:4px}
+  .box h3{font-size:12.5px;margin:6px 0 4px;color:var(--navy)} .box h3:first-child{margin-top:0}
+  .box ul{margin:2px 0 8px;padding-left:1.2em} .box li{margin:2px 0}
+  table.env{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
+  table.env th,table.env td{border:1px solid var(--hairline);padding:5px 8px;text-align:center}
+  table.env thead th{background:var(--ink-strong);color:#fff;font-weight:500}
+  .notes{margin-top:14px;font-size:11.5px;color:var(--muted)} .notes li{margin:3px 0}
+  footer{margin-top:26px;padding-top:12px;border-top:1px solid var(--hairline);font-size:11px;color:var(--muted);text-align:center}
+  @media print{body{background:#fff;font-size:11pt}.sheet{border:none;margin:0;max-width:none;padding:0}body::before{position:static}}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <!-- ===== ヘッダー ===== -->
+  <div class="head">
+    <div>
+      <img class="logo" src="../assets/bravesoft-logo.png" alt="bravesoft">
+      <h1>概算 御見積書</h1>
+      <p class="subtitle">会員アプリ（iOS / Android）MVP 開発<br>会員証表示・ポイント連携・認証を中心とした初期リリース版</p>
+    </div>
+    <div style="text-align:right">
+      <span class="conf">CONFIDENTIAL</span>
+      <div class="total">
+        <div class="lbl">御見積金額（税込）</div>
+        <div class="amt">¥11,523,600</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="metaline">
+    <div class="to">株式会社サンプル 御中</div>
+    <div class="meta">
+      作成日: <b class="num">2026-06-25</b>　／　有効期限: <b class="num">2026-07-25</b><br>
+      見積精度: <b>概算 −20%〜+30%</b>　／　Ver. <b class="num">1.0</b>
+    </div>
+  </div>
+
+  <!-- ===== お見積もり明細 ===== -->
+  <h2>お見積もり明細</h2>
+  <table class="est">
+    <thead>
+      <tr><th>大項目</th><th>中項目</th><th>概要</th><th>数量</th><th>単位</th><th>単価</th><th>料金（税抜）</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="cat" rowspan="2">要件定義</td><td>要件定義管理</td><td>進行・課題・リスク管理</td><td class="c">3</td><td class="c">人日</td><td class="r">75,000</td><td class="r">225,000</td></tr>
+      <tr><td>要件定義書</td><td>機能 / 非機能の定義</td><td class="c">8</td><td class="c">人日</td><td class="r">75,000</td><td class="r">600,000</td></tr>
+
+      <tr><td class="cat">デザイン</td><td>アプリデザイン</td><td>主要12画面の UI/UX</td><td class="c">20</td><td class="c">人日</td><td class="r">75,000</td><td class="r">1,500,000</td></tr>
+
+      <tr><td class="cat">設計</td><td>画面仕様書</td><td>表示項目・遷移・エラー設計</td><td class="c">10</td><td class="c">人日</td><td class="r">75,000</td><td class="r">750,000</td></tr>
+
+      <tr><td class="cat" rowspan="4">開発</td><td>認証・会員登録</td><td>OTP / SNS 連携ログイン</td><td class="c">15</td><td class="c">人日</td><td class="r">75,000</td><td class="r">1,125,000</td></tr>
+      <tr><td>会員証・ポイント表示</td><td>バーコード / ポイント（API取得）</td><td class="c">12</td><td class="c">人日</td><td class="r">75,000</td><td class="r">900,000</td></tr>
+      <tr><td>会員API・ポイントAPI</td><td>6 エンドポイント</td><td class="c">18</td><td class="c">人日</td><td class="r">75,000</td><td class="r">1,350,000</td></tr>
+      <tr><td>CI/CD・基盤</td><td>iOS / Android ビルド基盤</td><td class="c">8</td><td class="c">人日</td><td class="r">75,000</td><td class="r">600,000</td></tr>
+
+      <tr><td class="cat">テスト</td><td>結合テスト・デバッグ</td><td>項目作成・実施・不具合対応</td><td class="c">18</td><td class="c">人日</td><td class="r">60,000</td><td class="r">1,080,000</td></tr>
+
+      <tr><td class="cat">セキュリティ</td><td>脆弱性診断・対応</td><td>リリース前診断</td><td class="c">5</td><td class="c">人日</td><td class="r">75,000</td><td class="r">375,000</td></tr>
+
+      <tr><td class="cat">リリース</td><td>リリース・ストア申請</td><td>本番公開・審査対応</td><td class="c">3</td><td class="c">人日</td><td class="r">75,000</td><td class="r">225,000</td></tr>
+
+      <tr class="mng"><td class="cat">管理業務</td><td>管理業務（全体の20%）</td><td>進行管理・MTG・報告</td><td class="c">1</td><td class="c">式</td><td class="r">—</td><td class="r">1,746,000</td></tr>
+
+      <tr class="total"><td colspan="6">合計（税抜）</td><td class="r">¥10,476,000</td></tr>
+    </tbody>
+  </table>
+
+  <table class="taxbox">
+    <tr><td>小計（税抜）</td><td class="num">¥10,476,000</td></tr>
+    <tr><td>消費税（10%）</td><td class="num">¥1,047,600</td></tr>
+    <tr class="g"><td>合計（税込）</td><td class="num">¥11,523,600</td></tr>
+  </table>
+
+  <!-- ===== 納品物一覧 ===== -->
+  <h2>納品物一覧</h2>
+  <div class="box">
+    <h3>開発・設計</h3>
+    <ul><li>要件定義書</li><li>画面仕様書</li><li>API ドキュメント</li><li>テスト結果報告書</li></ul>
+    <h3>開発・運用</h3>
+    <ul><li>ビルド成果物（ipa / apk）</li><li>※ ソースコードは原則納品いたしません（ご希望の場合は別途）</li></ul>
+  </div>
+
+  <!-- ===== 動作確認環境 ===== -->
+  <h2>動作確認環境</h2>
+  <div class="box">
+    検証対象は最新版のみ。端末は各 4 機種を想定します。
+    <table class="env">
+      <thead><tr><th>OS</th><th>対応バージョン</th><th>検証端末</th></tr></thead>
+      <tbody>
+        <tr><td>iOS</td><td>15 以上 〜 最新</td><td>iPhone 4 機種</td></tr>
+        <tr><td>Android</td><td>12 以上 〜 最新</td><td>Android 4 機種</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ===== 本見積の対象外 ===== -->
+  <h2>本見積の対象外</h2>
+  <div class="box">
+    <ul>
+      <li>管理画面の新規開発</li>
+      <li>既存データの移行</li>
+      <li>多言語対応</li>
+      <li>運用代行・保守（別途お見積もり）</li>
+      <li>Salesforce 側の改修</li>
+    </ul>
+  </div>
+
+  <ul class="notes">
+    <li>※ 本見積もりは概算です（精度 −20%〜+30%）。要件確定後に詳細見積もりとさせていただきます。</li>
+    <li>※ 上記前提・対象外と異なる場合、別途お見積もりが必要となります。</li>
+    <li>※ 見積有効期限を過ぎた場合、再見積もりとさせていただく場合があります。</li>
+  </ul>
+
+  <footer>© 2026 bravesoft Inc. All rights reserved.</footer>
+</div>
+</body>
+</html>
