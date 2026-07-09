@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>見積もり（社内用・提出禁止）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#0066FF; --deep:#3366FF; --navy:#253A58;
+    --ink:#090A0A; --muted:#6C7072;
+    --soft:#E5F0FF; --hairline:#E3E5E5; --subtle:#F7F9FA;
+    --surface:#FFFFFF; --danger:#D63637; --success:#00A86B;
+    --sans:"Noto Sans JP",system-ui,sans-serif; --mono:"Roboto Mono",monospace;
+  }
+  *{box-sizing:border-box}
+  body{font-family:var(--sans);color:var(--ink);background:var(--subtle);margin:0;line-height:1.7;font-size:14px}
+  .sheet{max-width:840px;margin:24px auto;background:var(--surface);padding:0 0 40px;border:1px solid var(--hairline)}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .confidential{background:var(--danger);color:#fff;text-align:center;font-weight:700;font-size:13px;padding:8px;letter-spacing:.05em}
+  .body{padding:28px 44px}
+  .head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:4px solid var(--navy);padding-bottom:14px;margin-bottom:20px}
+  .logo{height:26px}
+  h1{font-size:22px;font-weight:700;margin:0}
+  .meta{margin-top:6px;font-size:12.5px;color:var(--muted)}
+  .meta b{color:var(--ink);font-weight:500}
+  h2{font-size:14px;font-weight:700;margin:24px 0 10px;padding-left:10px;border-left:4px solid var(--navy)}
+  .eyebrow{font-family:var(--mono);font-size:11px;color:var(--navy);letter-spacing:.08em;text-transform:uppercase}
+  .settings{display:flex;flex-wrap:wrap;gap:8px;font-size:12px}
+  .pill{background:var(--soft);border:1px solid var(--hairline);border-radius:999px;padding:3px 11px}
+  .pill b{font-family:var(--mono)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th,td{padding:7px 9px;border-bottom:1px solid var(--hairline);text-align:left}
+  thead th{background:var(--navy);color:#fff;font-weight:500;font-size:12px}
+  td.r,th.r{text-align:right;font-family:var(--mono);white-space:nowrap}
+  .profit{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:6px}
+  .stat{background:var(--navy);color:#fff;border-radius:10px;padding:14px 16px}
+  .stat .k{font-size:11px;opacity:.8} .stat .v{font-family:var(--mono);font-size:22px;font-weight:500;margin-top:2px}
+  .stat.good .v{color:#7AD1AC}
+  .sum{margin-top:16px;margin-left:auto;width:340px;font-size:13px}
+  .sum td{border-bottom:1px solid var(--hairline);padding:6px 4px}
+  .sum td:last-child{text-align:right;font-family:var(--mono)}
+  .sum .grand td{border-top:2px solid var(--navy);font-weight:700;font-size:15px;color:var(--navy)}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="confidential">🔒 社内限り・提出禁止 — 原価/利益率/社内単価を含みます（Rule 10）</div>
+  <div class="body">
+
+  <div class="head">
+    <div><img class="logo" src="../assets/bravesoft-logo.png" alt="bravesoft">
+      <h1 style="margin-top:10px">見積もり（社内用）</h1></div>
+    <div style="text-align:right" class="meta">
+      案件: <b>会員アプリ MVP</b><br>作成日: <b class="num">2026-06-25</b> ／ Ver.<b class="num">1.0</b><br>担当: <b>（社内）</b>
+    </div>
+  </div>
+
+  <h2><span class="eyebrow">Settings</span> ／ 見積もり設定（パラメータ）</h2>
+  <div class="settings">
+    <span class="pill">日本 <b>¥75,000</b>/人日</span>
+    <span class="pill">オフショア <b>¥50,000</b>/人日</span>
+    <span class="pill">テスト <b>¥60,000</b>/人日</span>
+    <span class="pill">管理費 <b>20%</b></span>
+    <span class="pill">バッファ <b>×1.2</b></span>
+    <span class="pill">税 <b>10%</b></span>
+  </div>
+
+  <h2><span class="eyebrow">Profitability</span> ／ 採算（社内）</h2>
+  <div class="profit">
+    <div class="stat"><div class="k">社外金額(税抜)</div><div class="v">¥8.89M</div></div>
+    <div class="stat"><div class="k">社内原価(概算)</div><div class="v">¥5.60M</div></div>
+    <div class="stat good"><div class="k">利益率(バッファあり)</div><div class="v">37%</div></div>
+    <div class="stat"><div class="k">利益率(バッファなし)</div><div class="v">31%</div></div>
+  </div>
+
+  <h2><span class="eyebrow">Breakdown</span> ／ 明細（原価併記）</h2>
+  <table>
+    <thead><tr><th>フェーズ</th><th>項目</th><th class="r">工数</th><th class="r">社外金額</th><th class="r">社内原価</th></tr></thead>
+    <tbody>
+      <tr><td>要件定義</td><td>要件定義管理・定義書</td><td class="r">11</td><td class="r">825,000</td><td class="r">605,000</td></tr>
+      <tr><td>デザイン</td><td>アプリデザイン</td><td class="r">20</td><td class="r">1,500,000</td><td class="r">1,000,000</td></tr>
+      <tr><td>設計</td><td>画面仕様書</td><td class="r">10</td><td class="r">750,000</td><td class="r">500,000</td></tr>
+      <tr><td>開発</td><td>アプリ・API・基盤</td><td class="r">53</td><td class="r">2,650,000</td><td class="r">1,855,000</td></tr>
+      <tr><td>テスト</td><td>結合テスト・デバッグ</td><td class="r">18</td><td class="r">1,080,000</td><td class="r">900,000</td></tr>
+      <tr><td>ｾｷｭﾘﾃｨ/ﾘﾘｰｽ</td><td>診断・申請</td><td class="r">8</td><td class="r">600,000</td><td class="r">440,000</td></tr>
+    </tbody>
+  </table>
+
+  <table class="sum">
+    <tr><td>明細小計(税抜)</td><td class="num">¥7,405,000</td></tr>
+    <tr><td>管理費(20%)</td><td class="num">¥1,481,000</td></tr>
+    <tr><td>小計(税抜)</td><td class="num">¥8,886,000</td></tr>
+    <tr><td>消費税(10%)</td><td class="num">¥888,600</td></tr>
+    <tr class="grand"><td>合計(税込)</td><td class="num">¥9,774,600</td></tr>
+  </table>
+
+  <p style="margin-top:18px;font-size:12px;color:var(--muted)">
+    ※ このファイルは社内検討用です。顧客提出時は <b>estimate_submission.html</b>（原価・利益率なし）を使用してください（Rule 10 / Step 09 の提出前チェック D 項）。
+  </p>
+  </div>
+</div>
+</body>
+</html>

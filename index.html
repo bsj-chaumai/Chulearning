@@ -1,199 +1,391 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>Lipstickk Store - Management System</title>
-    <style>
-        :root { --shopee: #ee4d2d; --blue: #0046ab; --bg: #f8f9fa; --green: #28a745; }
-        body { font-family: -apple-system, system-ui, sans-serif; background: var(--bg); margin: 0; padding: 20px; color: #333; }
-        .container { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); width: 100%; max-width: 1000px; margin: auto; }
-        
-        /* Tabs */
-        .tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 25px; gap: 10px; overflow-x: auto; }
-        .tab { padding: 12px 20px; cursor: pointer; font-weight: bold; color: #888; border-bottom: 3px solid transparent; white-space: nowrap; }
-        .tab.active { color: var(--shopee); border-bottom-color: var(--shopee); }
-        .content-section { display: none; }
-        .content-section.active { display: block; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Driven Estimation & Proposal Kit — 使い方ガイド</title>
+<script>
+  (function(){ try { var s=localStorage.getItem('epk-theme'); document.documentElement.setAttribute('data-theme', s==='dark'?'dark':'light'); } catch(e){ document.documentElement.setAttribute('data-theme','light'); } })();
+</script>
+<style>
+  /* ===== ブランドトークン（bravesoft 公式デザインシステム DESIGN.md 準拠） ===== */
+  :root{
+    --brand:#0066ff; --brand-strong:#3366ff; --brand-bright:#3f9cff;
+    --accent-yellow:#ffe94a; --accent-pink:#0066ff;
+    --tint:#e5f0ff; --green:#00a86b; --green-bg:#e5f0ff; --navy:#253a58;
+    --bg:#ffffff; --bg-soft:#f7f9fa; --bg-elev:#ffffff; --border:#e3e5e5;
+    --text:#090a0a; --text-muted:#6c7072;
+    --code-bg:#161717; --code-text:#e8eefc;
+    --good:#00a86b; --warn:#d97706; --bad:#d63637;
+    --shadow:0 1px 4px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.05);
+    --font:"Noto Sans JP",-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+    --mono:"Roboto Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  }
+  :root[data-theme="dark"]{
+    --bg:#0e1116; --bg-soft:#161b22; --bg-elev:#1b2027; --border:#2b313a;
+    --text:#f3f4f6; --text-muted:#9aa0a6;
+    --shadow:0 1px 3px rgba(0,0,0,.5), 0 10px 28px -16px rgba(0,0,0,.7);
+  }
+  *{box-sizing:border-box;} html{scroll-behavior:smooth;}
+  body{margin:0;font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.8;-webkit-font-smoothing:antialiased;}
+  body::before{content:"";position:fixed;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,var(--brand),#3f9cff);z-index:60;}
+  a{color:var(--brand);text-decoration:none;} a:hover{text-decoration:underline;}
+  code{font-family:var(--mono);font-size:.88em;background:var(--bg-soft);color:var(--brand-strong);padding:.12em .4em;border-radius:5px;border:1px solid var(--border);}
+  :root[data-theme="dark"] code{color:var(--brand-bright);}
 
-        /* UI chung */
-        .input-box { background: #fff5f2; padding: 20px; border-radius: 10px; border: 1px solid #ffe0d8; margin-bottom: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px; }
-        label { display: block; font-weight: bold; font-size: 12px; margin-bottom: 6px; color: #555; }
-        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        button { width: 100%; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-calc { background: var(--blue); }
-        .btn-save { background: var(--green); margin-top: 10px; }
-        .btn-orange { background: var(--shopee); margin-top: 10px; }
+  /* layout */
+  .container{display:grid;grid-template-columns:268px 1fr;max-width:1320px;margin:0 auto;min-height:100vh;}
+  .sidebar{background:var(--bg-soft);border-right:1px solid var(--border);padding:1.6rem 1.1rem;position:sticky;top:0;height:100vh;overflow-y:auto;}
+  .sidebar .brand{display:flex;flex-direction:column;align-items:flex-start;gap:.35rem;font-weight:800;color:var(--brand);font-size:.92rem;margin-bottom:.4rem;}
+  .sidebar .brand img{display:block;width:150px;height:auto;max-width:100%;}
+  .sidebar .ver{color:var(--text-muted);font-size:.72rem;margin-bottom:1.2rem;}
+  .sidebar h3{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin:1.3rem 0 .4rem;}
+  .sidebar ul{list-style:none;padding:0;margin:0;} .sidebar li{margin:.08rem 0;}
+  .sidebar a{display:block;padding:.32rem .65rem;border-radius:7px;color:var(--text);font-size:.88rem;}
+  .sidebar a:hover{background:rgba(0,102,255,.08);color:var(--brand);text-decoration:none;}
+  main{padding:2.6rem 3rem 6rem;max-width:960px;}
+  @media(max-width:900px){.container{grid-template-columns:1fr;}.sidebar{position:relative;height:auto;border-right:none;border-bottom:1px solid var(--border);}main{padding:2rem 1.3rem 4rem;}}
 
-        /* Detail Analysis Tab 3 (Giống hình 100%) */
-        .analysis-card { background: white; border: 1px solid #eee; border-radius: 10px; padding: 20px; margin-top: 20px; }
-        .analysis-title { color: var(--shopee); text-align: center; font-size: 22px; font-weight: bold; margin-bottom: 20px; text-transform: uppercase; }
-        .row-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #fafafa; font-size: 15px; }
-        .sub-item { padding-left: 25px; font-size: 13px; color: #777; font-style: italic; }
-        .negative { color: #d32f2f; font-weight: bold; }
-        .final-row { border-top: 2px solid var(--shopee); margin-top: 15px; padding-top: 15px; font-size: 24px; font-weight: bold; color: var(--shopee); }
+  /* theme toggle */
+  .toggle{position:fixed;top:1rem;right:1rem;width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:var(--bg-elev);color:var(--text);cursor:pointer;box-shadow:var(--shadow);z-index:50;font-size:1.1rem;}
+  .toggle:hover{border-color:var(--brand);color:var(--brand);}
+  @media print{.toggle,.sidebar{display:none;}}
 
-        /* Sỉ Result Cards */
-        .si-result-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-top: 15px; display: none; }
-        .si-card { background: white; padding: 15px; border-radius: 10px; border: 1px solid #ddd; text-align: center; }
-        .si-card h4 { margin: 0 0 10px 0; font-size: 13px; }
-        .profit-tag { background: #e8f5e9; color: #2e7d32; padding: 5px; border-radius: 5px; font-weight: bold; font-size: 12px; margin-top: 5px; }
-        .final-price { font-size: 20px; font-weight: bold; color: var(--shopee); margin-top: 10px; padding-top: 10px; border-top: 1px dashed #ddd; }
+  /* hero */
+  .hero{margin-bottom:2.5rem;padding-bottom:1.6rem;border-bottom:1px solid var(--border);}
+  .hero h1{font-size:2.3rem;line-height:1.2;margin:.2rem 0 .5rem;background:linear-gradient(135deg,var(--brand),var(--brand-bright));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .hero .tag{font-size:1.12rem;color:var(--text-muted);margin:.3rem 0 1rem;}
+  .badges{display:flex;gap:.5rem;flex-wrap:wrap;}
+  .badge{font-size:.72rem;font-weight:700;padding:.22rem .6rem;border-radius:999px;background:var(--bg-soft);border:1px solid var(--border);color:var(--text-muted);}
+  .badge.b{background:rgba(0,102,255,.1);color:var(--brand);border-color:transparent;}
 
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
-        th, td { border: 1px solid #eee; padding: 10px; text-align: center; }
-        th { background: #fafafa; }
-        .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; }
-    </style>
+  h2{font-size:1.55rem;margin:3rem 0 1rem;padding-bottom:.4rem;border-bottom:2px solid var(--brand);scroll-margin-top:1rem;}
+  h3{font-size:1.15rem;margin:1.8rem 0 .6rem;color:var(--brand-strong);}
+  :root[data-theme="dark"] h3{color:var(--brand-bright);}
+  p{margin:.7rem 0;}
+
+  .cards{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));margin:1.2rem 0;}
+  .card{background:var(--bg-elev);border:1px solid var(--border);border-radius:12px;padding:1.1rem 1.2rem;box-shadow:var(--shadow);}
+  .card .n{display:inline-grid;place-items:center;width:1.9rem;height:1.9rem;border-radius:8px;background:linear-gradient(135deg,var(--brand),var(--brand-bright));color:#fff;font-weight:800;font-size:.9rem;margin-bottom:.5rem;}
+  .card h4{margin:.2rem 0 .35rem;font-size:1.02rem;} .card p{margin:.2rem 0;font-size:.9rem;color:var(--text-muted);}
+
+  .promise{display:flex;gap:.8rem;align-items:flex-start;padding:.7rem 0;border-bottom:1px dashed var(--border);}
+  .promise:last-child{border-bottom:none;}
+  .promise .ic{font-size:1.4rem;line-height:1;flex:none;width:2.2rem;text-align:center;}
+  .promise b{color:var(--brand-strong);} :root[data-theme="dark"] .promise b{color:var(--brand-bright);}
+
+  table{border-collapse:collapse;width:100%;margin:1rem 0;font-size:.9rem;}
+  th,td{border:1px solid var(--border);padding:.5rem .7rem;text-align:left;vertical-align:top;}
+  thead th{background:var(--brand);color:#fff;}
+  tbody tr:nth-child(even){background:var(--bg-soft);}
+
+  .prompt{position:relative;background:var(--code-bg);color:var(--code-text);border-radius:12px;padding:1.1rem 1.2rem;margin:.8rem 0 1.4rem;font-family:var(--mono);font-size:.82rem;line-height:1.65;white-space:pre-wrap;}
+  .prompt .copy{position:absolute;top:.6rem;right:.6rem;background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);padding:.25rem .7rem;border-radius:7px;font-size:.72rem;cursor:pointer;font-family:var(--font);}
+  .prompt .copy:hover{background:rgba(255,255,255,.22);} .prompt .copy.ok{background:var(--good);border-color:var(--good);}
+
+  .callout{border-left:4px solid var(--brand);background:var(--tint);border-radius:0 10px 10px 0;padding:.7rem 1rem;margin:1rem 0;font-size:.92rem;}
+  details{border:1px solid var(--border);border-radius:10px;padding:.4rem .9rem;margin:.6rem 0;background:var(--bg-elev);}
+  details summary{cursor:pointer;font-weight:700;padding:.4rem 0;}
+  details[open] summary{color:var(--brand);}
+  .step{display:flex;gap:.8rem;padding:.55rem 0;border-bottom:1px solid var(--border);} .step:last-child{border:none;}
+  .step .sn{flex:none;width:2.4rem;height:2.4rem;border-radius:9px;display:grid;place-items:center;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--brand),var(--brand-bright));}
+  .step .sb b{display:block;} .step .sb span{font-size:.86rem;color:var(--text-muted);}
+  footer{margin-top:3rem;padding-top:1.4rem;border-top:1px solid var(--border);color:var(--text-muted);font-size:.85rem;}
+  .hl{background:var(--accent-yellow);padding:0 .12em;border-radius:2px;font-weight:700;}
+</style>
 </head>
 <body>
-
+<button class="toggle" onclick="toggleTheme()" title="テーマ切替">🌓</button>
 <div class="container">
-    <h2 style="color: var(--shopee); text-align: center; margin-bottom: 25px;">LIPSTICKK STORE SYSTEM</h2>
-    
-    <div class="tabs">
-        <div id="t-si" class="tab active" onclick="switchTab('si')">QUẢN LÝ GIÁ SỈ (NEW)</div>
-        <div id="t-le" class="tab" onclick="switchTab('le')">QUẢN LÝ SẢN PHẨM (LẺ)</div>
-        <div id="t-calc" class="tab" onclick="switchTab('calc')">TÍNH GIÁ & PHÍ CHI TIẾT</div>
+  <!-- ===== Sidebar ===== -->
+  <nav class="sidebar">
+    <div class="brand"><img src="assets/bravesoft-logo.png" alt="bravesoft"><span>Estimation &amp; Proposal Kit</span></div>
+    <div class="ver">v0.1.1 · bravesoft</div>
+    <h3>はじめに</h3>
+    <ul>
+      <li><a href="#what">これは何？</a></li>
+      <li><a href="#promise">6つの約束</a></li>
+      <li><a href="#quickstart">5分クイックスタート</a></li>
+    </ul>
+    <h3>使い方</h3>
+    <ul>
+      <li><a href="#flow">9ステップの流れ</a></li>
+      <li><a href="#format">統一フォーマット（7レイヤー）</a></li>
+      <li><a href="#output">出力フォーマット</a></li>
+      <li><a href="#excel">Excelの使い方</a></li>
+      <li><a href="#prompts">プロンプト定型集</a></li>
+    </ul>
+    <h3>ルール / 参考</h3>
+    <ul>
+      <li><a href="#rules">15のルール</a></li>
+      <li><a href="#files">ファイル構成</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+  </nav>
+
+  <!-- ===== Main ===== -->
+  <main>
+    <div class="hero">
+      <div class="badges" style="margin-bottom:.8rem;">
+        <span class="badge b">v0.1.1 experimental</span>
+        <span class="badge">非エンジニアOK</span>
+        <span class="badge">Excel / HTML / PDF / PPTX</span>
+        <span class="badge">積み上げ根拠</span>
+      </div>
+      <h1>AI-Driven Estimation &amp; Proposal Kit</h1>
+      <p class="tag">「この案件を見積もって」と頼めば、誰でも・AIでも、<span class="hl">同じ構成・同じ品質</span>の見積もりを、<span class="hl">積み上げ根拠つき・抜け漏れなし</span>で作れるキット。</p>
     </div>
 
-    <div id="sec-si" class="content-section active">
-        <div class="input-box">
-            <div class="grid">
-                <div style="grid-column: span 2;"><label>Tên sản phẩm:</label><input type="text" id="siName"></div>
-                <div style="grid-column: span 2;"><label>Ảnh sản phẩm:</label><input type="file" onchange="handleImg(this, 'siImgBase64')"><input type="hidden" id="siImgBase64"></div>
-                <div><label>Giá JPY:</label><input type="number" id="siJpy" value="880"></div>
-                <div><label>Tỷ giá:</label><input type="number" id="siRate" value="170"></div>
-                <div><label>Ship N-V:</label><input type="number" id="siShip" value="6000"></div>
-                <div><label>Đóng gói:</label><input type="number" id="siPack" value="2000"></div>
-            </div>
-            <button class="btn-calc" onclick="calcSi()">GIÁ SỈ THEO PHÂN LOẠI</button>
-            <div id="siRes" class="si-result-grid">
-                <div class="si-card"><h4>SỈ NHỎ (10-20)</h4><div class="profit-tag" id="p10"></div><div class="final-price" id="s10"></div></div>
-                <div class="si-card"><h4>SỈ TRUNG (30-40)</h4><div class="profit-tag" id="p30"></div><div class="final-price" id="s30"></div></div>
-                <div class="si-card"><h4>SỈ LỚN (≥ 50)</h4><div class="profit-tag" id="p50"></div><div class="final-price" id="s50"></div></div>
-            </div>
-            <button class="btn-save" id="btnSaveSi" style="display:none;" onclick="saveSi()">LƯU DANH SÁCH SỈ</button>
-        </div>
-        <table id="tblSi"><thead><tr><th>Ảnh</th><th>Sản phẩm</th><th>Vốn</th><th>Sỉ 10 (Lãi)</th><th>Sỉ 30 (Lãi)</th><th>Sỉ 50 (Lãi)</th><th>Xóa</th></tr></thead><tbody id="bodySi"></tbody></table>
+    <!-- What -->
+    <h2 id="what">これは何？</h2>
+    <p>見積もり・提案づくりを AI（Claude Code / Cursor / Codex 等）と組んで<b>標準化</b>するためのドキュメント集です。キットを案件用フォルダに置いて AI を起動し、「○○の案件を見積もって」と頼むだけ。AI が <b>ヒアリング → 案件アセスメント(Go/No-Go) → 機能分解 → 工数積み上げ → 金額・採算 → スケジュール → クロスチェック → 提案書 → 出力</b> の順に進め、bravesoft 統一フォーマットの見積もりを仕上げます。</p>
+    <div class="callout">社内に散在していた見積もりスタイル（BrSE 旧テンプレ／営業の概算／個人の独自テンプレ）を分析し、全社共通で必要な構成を <b>7 レイヤー</b>に整理。それを「誰でも・AI でも同じ品質で」生み出す仕組みにしました。姉妹キット <b>Research &amp; Reporting / iOS Development Kit</b> と同じ運用思想（入口ファイルによる自動起動・番号付き Step・AI↔人間の通信テンプレ・横断記憶ログ）を、見積もり・提案領域に翻案しています。</div>
+
+    <!-- Promise -->
+    <h2 id="promise">6つの約束（このキットの核）</h2>
+    <p>良い見積もりの作法を、AIが必ず守るルール（Rule 1〜6）として埋め込みました。</p>
+    <div class="card" style="box-shadow:var(--shadow);">
+      <div class="promise"><div class="ic">🧮</div><div><b>1. 積み上げ厳守（No Basis, No Number）</b><br><span style="color:var(--text-muted);font-size:.9rem;">機能を分解し 工数(人日)×単価 を積み上げ、各項目に根拠を残す。相場・記憶・どんぶり勘定で出さない。</span></div></div>
+      <div class="promise"><div class="ic">🧩</div><div><b>2. 抜け漏れゼロ（網羅）</b><br><span style="color:var(--text-muted);font-size:.9rem;">フェーズ×カテゴリで逆引き。PM・テスト・リリース/ストア申請・<strong>非機能要件</strong>を必ず通す。</span></div></div>
+      <div class="promise"><div class="ic">📐</div><div><b>3. 前提・スコープを固定</b><br><span style="color:var(--text-muted);font-size:.9rem;">見積根拠／対応範囲／対象外(Out of Scope)／契約形態／環境／納品物を明記。「外れたら別途」。</span></div></div>
+      <div class="promise"><div class="ic">🔐</div><div><b>4. 統一フォーマット＆内部/提出の分離</b><br><span style="color:var(--text-muted);font-size:.9rem;">1つの正本から、社内用（原価・利益率）と提出用を派生。社内情報を提出物に混ぜない。</span></div></div>
+      <div class="promise"><div class="ic">💴</div><div><b>5. バッファ・管理費・採算を明示</b><br><span style="color:var(--text-muted);font-size:.9rem;">バッファ・管理費・値引きを見える化し、利益率を必ず確認。隠さない・後付けしない。</span></div></div>
+      <div class="promise"><div class="ic">🙌</div><div><b>6. 非エンジニア・ファースト／出力は選べる</b><br><span style="color:var(--text-muted);font-size:.9rem;">用語をかみ砕き、操作は最小、次の一手を毎回提示。出力は Excel / HTML / PDF / PPTX から選択。</span></div></div>
     </div>
 
-    <div id="sec-le" class="content-section">
-        <div class="input-box">
-            <div class="grid">
-                <div style="grid-column: span 2;"><label>Tên sản phẩm:</label><input type="text" id="leName"></div>
-                <div><label>Vốn VNĐ:</label><input type="number" id="leCost"></div>
-                <div><label>Bán Shopee:</label><input type="number" id="leSale"></div>
-            </div>
-            <button class="btn-save" onclick="saveLe()">LƯU SẢN PHẨM LẺ</button>
-        </div>
-        <table id="tblLe"><thead><tr><th>Sản phẩm</th><th>Vốn</th><th>Giá bán</th><th>Lãi thực nhận</th><th>Xóa</th></tr></thead><tbody id="bodyLe"></tbody></table>
+    <!-- Quickstart -->
+    <h2 id="quickstart">5分クイックスタート</h2>
+    <div class="cards">
+      <div class="card"><div class="n">1</div><h4>フォルダに置く</h4><p>キットを案件用フォルダのルートに丸ごと配置（<code>CLAUDE.md</code> / <code>AGENTS.md</code> / <code>.cursor/</code> を含める）。</p></div>
+      <div class="card"><div class="n">2</div><h4>AIを起動</h4><p>そのフォルダで Claude Code / Cursor / Codex を起動。入口ファイルが自動で読み込まれます。</p></div>
+      <div class="card"><div class="n">3</div><h4>情報を投げる</h4><p>「この案件を見積もって」＋<strong>手元の資料を投げられるだけ投げる</strong>（RFP・画面・既存アプリ等／断片でOK）。AI が足りない分だけヒアリングします。</p></div>
+      <div class="card"><div class="n">4</div><h4>形式を選ぶ</h4><p>仕上げに Excel / HTML / PDF / PPTX を指定。社内用（原価・利益率あり）と提出用は分けて出ます。</p></div>
+    </div>
+    <div class="callout">「ざっくりいくら？」程度なら <code>04_Quick_Estimation/</code>（同じ原則を最小手順で）。</div>
+
+    <!-- Flow -->
+    <h2 id="flow">9ステップの流れ</h2>
+    <p>案件のたびにこの順で進みます。<b>いきなり数字を出しません</b>（Rule 1・7）。</p>
+    <svg viewBox="0 0 940 150" role="img" aria-label="見積もり9ステップの流れ" style="width:100%;max-width:940px;height:auto;display:block;margin:1.2rem auto;background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;">
+      <defs><marker id="fa" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#979c9e"/></marker></defs>
+      <g stroke="#979c9e" stroke-width="2" marker-end="url(#fa)">
+        <line x1="74" y1="52" x2="136" y2="52"/><line x1="182" y1="52" x2="244" y2="52"/>
+        <line x1="290" y1="52" x2="352" y2="52"/><line x1="398" y1="52" x2="460" y2="52"/>
+        <line x1="506" y1="52" x2="568" y2="52"/><line x1="614" y1="52" x2="676" y2="52"/>
+        <line x1="722" y1="52" x2="784" y2="52"/><line x1="830" y1="52" x2="892" y2="52"/>
+      </g>
+      <!-- light steps -->
+      <g>
+        <circle cx="52"  cy="52" r="22" fill="#e5f0ff" stroke="#0066ff" stroke-width="2"/><text x="52"  y="58" text-anchor="middle" fill="#0066ff" font-size="16" font-weight="800">1</text><text x="52"  y="92" text-anchor="middle" fill="#303437" font-size="12.5">ヒアリング</text>
+        <circle cx="268" cy="52" r="22" fill="#e5f0ff" stroke="#0066ff" stroke-width="2"/><text x="268" y="58" text-anchor="middle" fill="#0066ff" font-size="16" font-weight="800">3</text><text x="268" y="92" text-anchor="middle" fill="#303437" font-size="12.5">機能分解</text>
+        <circle cx="484" cy="52" r="22" fill="#e5f0ff" stroke="#0066ff" stroke-width="2"/><text x="484" y="58" text-anchor="middle" fill="#0066ff" font-size="16" font-weight="800">5</text><text x="484" y="92" text-anchor="middle" fill="#303437" font-size="12.5">金額・採算</text>
+        <circle cx="592" cy="52" r="22" fill="#e5f0ff" stroke="#0066ff" stroke-width="2"/><text x="592" y="58" text-anchor="middle" fill="#0066ff" font-size="16" font-weight="800">6</text><text x="592" y="92" text-anchor="middle" fill="#303437" font-size="12.5">スケジュール</text>
+        <circle cx="700" cy="52" r="22" fill="#e5f0ff" stroke="#0066ff" stroke-width="2"/><text x="700" y="58" text-anchor="middle" fill="#0066ff" font-size="16" font-weight="800">7</text><text x="700" y="92" text-anchor="middle" fill="#303437" font-size="12.5">クロスチェック</text>
+        <circle cx="808" cy="52" r="22" fill="#e5f0ff" stroke="#0066ff" stroke-width="2"/><text x="808" y="58" text-anchor="middle" fill="#0066ff" font-size="16" font-weight="800">8</text><text x="808" y="92" text-anchor="middle" fill="#303437" font-size="12.5">提案書</text>
+      </g>
+      <!-- highlighted steps -->
+      <circle cx="160" cy="52" r="23" fill="#0066ff"/><text x="160" y="58" text-anchor="middle" fill="#fff" font-size="16" font-weight="800">2</text><text x="160" y="92" text-anchor="middle" fill="#0066ff" font-size="12" font-weight="700">Go/No-Go</text>
+      <circle cx="376" cy="52" r="23" fill="#0066ff"/><text x="376" y="58" text-anchor="middle" fill="#fff" font-size="16" font-weight="800">4</text><text x="376" y="92" text-anchor="middle" fill="#0066ff" font-size="12" font-weight="700">工数積上げ</text>
+      <circle cx="916" cy="52" r="23" fill="#253a58"/><text x="916" y="58" text-anchor="middle" fill="#fff" font-size="16" font-weight="800">9</text><text x="916" y="92" text-anchor="middle" fill="#253a58" font-size="12.5" font-weight="700">出力</text>
+      <text x="470" y="128" text-anchor="middle" fill="#6c7072" font-size="12.5">★ Go/No-Go(②)で受けるか判断 → 積み上げ(④)で根拠つき工数 → 金額・採算・提出前は人レビュー（Rule 13）</text>
+    </svg>
+    <div class="card" style="box-shadow:var(--shadow);">
+      <div class="step"><div class="sn">1</div><div class="sb"><b>依頼受付 &amp; ヒアリング</b><span>★まず「案件情報を投げられるだけ投げて」もらう（インプットが全て）→ 足りない分だけ背景・対象OS・契約形態・予算・機密をこちらから確認 → docs/estimation_brief.md</span></div></div>
+      <div class="step"><div class="sn">2</div><div class="sb"><b>案件アセスメント（Go/No-Go 判断）</b><span>実現可能性・リスク・採算・前提充足度で「進めてよいか」を判断（最終判断は人間）</span></div></div>
+      <div class="step"><div class="sn">3</div><div class="sb"><b>スコープ &amp; 機能分解</b><span>Must/Want/Out、フェーズ×カテゴリで展開、非機能要件チェック</span></div></div>
+      <div class="step"><div class="sn">4</div><div class="sb"><b>工数積み上げ</b><span>各項目に 工数(人日)×単価 と根拠。単価・係数は案件ごとに設定</span></div></div>
+      <div class="step"><div class="sn">5</div><div class="sb"><b>金額構成 &amp; 採算</b><span>管理費・バッファ・税を見える化、利益率を確認（社内/提出を分離）</span></div></div>
+      <div class="step"><div class="sn">6</div><div class="sb"><b>スケジュール &amp; 体制</b><span>見積明細から WBS/ガント・役割別アサインを派生</span></div></div>
+      <div class="step"><div class="sn">7</div><div class="sb"><b>AIクロスチェック</b><span>過大/過小・抜け漏れ・前提不足をツッコミ（人レビューの前段）</span></div></div>
+      <div class="step"><div class="sn">8</div><div class="sb"><b>提案ドキュメント生成</b><span>提出用見積・見積根拠資料・提案書（PPTX/Word）</span></div></div>
+      <div class="step"><div class="sn">9</div><div class="sb"><b>出力 &amp; 納品</b><span>Excel/HTML/PDF/PPTX。提出前チェックリスト＋外部提出前は人間レビュー</span></div></div>
     </div>
 
-    <div id="sec-calc" class="content-section">
-        <div class="input-box">
-            <label>Giá nhập hàng (VNĐ):</label>
-            <input type="number" id="detCost" value="150000" style="margin-bottom:15px">
-            <label>Giá bán niêm yết Shopee (VNĐ):</label>
-            <input type="number" id="detSale" value="340000">
-            <button class="btn-orange" onclick="analyzeDetail()">PHÂN TÍCH THEO ĐƠN HÀNG</button>
-        </div>
+    <!-- Format -->
+    <h2 id="format">統一フォーマット（7レイヤー）</h2>
+    <p>社内6スタイルの見積もりを分析して抽出した「どの見積もりにも要るもの」。正本は <code>02_Estimation_Template/estimate_master.md</code>、お手本は <code>example_estimate.md</code>。</p>
+    <svg viewBox="0 0 720 392" role="img" aria-label="統一フォーマット 7レイヤーの構成" style="width:100%;max-width:720px;height:auto;display:block;margin:1.2rem auto;background:var(--bg-soft);border:1px solid var(--border);border-radius:12px;">
+      <defs><marker id="fd" markerWidth="9" markerHeight="9" refX="3" refY="7" orient="auto"><path d="M0,0 L6,0 L3,6 Z" fill="#979c9e"/></marker></defs>
+      <g stroke="#979c9e" stroke-width="2" marker-end="url(#fd)">
+        <line x1="360" y1="50" x2="360" y2="62"/><line x1="360" y1="104" x2="360" y2="116"/>
+        <line x1="360" y1="158" x2="360" y2="170"/><line x1="360" y1="212" x2="360" y2="224"/>
+        <line x1="360" y1="266" x2="360" y2="278"/><line x1="360" y1="320" x2="360" y2="332"/>
+      </g>
+      <rect x="60" y="10"  width="600" height="38" rx="9" fill="#f2f4f5" stroke="#e3e5e5"/><text x="360" y="34"  text-anchor="middle" fill="#090a0a" font-size="12" font-weight="700">① メタ・表紙：宛先 / 案件名 / 作成日 / 有効期限 / 見積精度 / 版</text>
+      <rect x="60" y="64"  width="600" height="38" rx="9" fill="#fff" stroke="#e3e5e5"/><text x="360" y="88"  text-anchor="middle" fill="#090a0a" font-size="12" font-weight="700">② 前提条件・スコープ：見積根拠 / 対応範囲 / 対象外 / 契約形態 / 環境</text>
+      <rect x="60" y="118" width="600" height="38" rx="9" fill="#fff" stroke="#e3e5e5"/><text x="360" y="142" text-anchor="middle" fill="#090a0a" font-size="12" font-weight="700">③ 納入物・納品物：計画書 / 設計書 / 画面仕様 / テスト報告</text>
+      <rect x="60" y="172" width="600" height="38" rx="9" fill="#0066ff"/><text x="360" y="196" text-anchor="middle" fill="#fff" font-size="12.5" font-weight="800">④ 見積明細（核）：フェーズ × カテゴリ × 項目 × 工数(人日) × 単価</text>
+      <rect x="60" y="226" width="600" height="38" rx="9" fill="#fff" stroke="#e3e5e5"/><text x="360" y="250" text-anchor="middle" fill="#090a0a" font-size="11.5" font-weight="700">⑤ 金額構成・集計：小計 / 管理費 / バッファ / 値引き / 税 / 合計（社内・社外）</text>
+      <rect x="60" y="280" width="600" height="38" rx="9" fill="#fff" stroke="#e3e5e5"/><text x="360" y="304" text-anchor="middle" fill="#090a0a" font-size="12" font-weight="700">⑥ スケジュール・体制：WBS・ガント / 役割別アサイン / Phase・STEP</text>
+      <rect x="60" y="334" width="600" height="38" rx="9" fill="#253a58"/><text x="360" y="358" text-anchor="middle" fill="#fff" font-size="12" font-weight="700">⑦ 提案・根拠・品質：提出用 / 見積根拠 / 提出前チェック / 人レビュー</text>
+    </svg>
+    <table>
+      <thead><tr><th>レイヤー</th><th>中身</th></tr></thead>
+      <tbody>
+        <tr><td><b>① メタ・表紙</b></td><td>宛先 / 案件名 / 作成日 / 見積有効期限 / 見積精度(±%) / 通貨・税区分 / 版管理</td></tr>
+        <tr><td><b>② 前提条件・スコープ</b></td><td>見積根拠 / 対応範囲 / 対象外(Out of Scope) / 契約形態(準委任・請負) / 環境</td></tr>
+        <tr><td><b>③ 納入物・納品物</b></td><td>計画書 / 要件定義書 / 設計書 / 画面仕様書 / テスト報告書 / ソースコードの扱い</td></tr>
+        <tr><td><b>④ 見積明細（核）</b></td><td>フェーズ × カテゴリ × 項目 × 概要 × 工数(人日) × 単価 × 小計 ＋ 根拠・備考</td></tr>
+        <tr><td><b>⑤ 金額構成・集計</b></td><td>小計 / 管理費(PM) / バッファ / 値引き / 消費税 / 合計（＋社内：原価・利益率）</td></tr>
+        <tr><td><b>⑥ スケジュール・体制</b></td><td>WBS・ガント / 役割別アサイン / Phase・STEP 分割 / 総期間</td></tr>
+        <tr><td><b>⑦ 提案・根拠・品質</b></td><td>提出用見積 / 見積根拠資料 / 提出前チェック / 人レビュー</td></tr>
+      </tbody>
+    </table>
+    <div class="callout"><b>内部/提出の分離</b>：1つの正本（明細）から「<b>社内用</b>（原価・利益率・社内単価あり）」と「<b>提出用</b>（それらなし）」を派生します。提出物に社内情報を混ぜない仕掛けです（Rule 4・10）。<b>単価・管理費・バッファ</b>は冒頭「見積もり設定」で案件ごとに変えられます。</div>
 
-        <div id="analysisBox" class="analysis-card" style="display:none;">
-            <div class="analysis-title">CHI TIẾT DOANH THU ƯỚC TÍNH</div>
-            <div class="row-item"><span>Tổng tiền sản phẩm</span><span id="resTotal"></span></div>
-            <div class="row-item"><span>Phụ phí sàn</span><span id="resFeeTotal" class="negative"></span></div>
-            <div class="row-item sub-item"><span>Phí cố định (14%)</span><span id="resFix"></span></div>
-            <div class="row-item sub-item"><span>Phí Dịch vụ (Hạ tầng + Voucher Xtra)</span><span id="resService"></span></div>
-            <div class="row-item sub-item" style="padding-left:45px"><span>+ Phí Hạ tầng (3k/đơn)</span><span>-3.000đ</span></div>
-            <div class="row-item sub-item" style="padding-left:45px"><span>+ Voucher Xtra (4%)</span><span id="resVxtra"></span></div>
-            <div class="row-item sub-item"><span>Phí thanh toán (~4.9%)</span><span id="resPay"></span></div>
-            <div class="row-item" style="margin-top:10px"><span>Thuế</span><span id="resTaxTotal" class="negative"></span></div>
-            <div class="row-item sub-item"><span>Thuế GTGT (1%)</span><span id="resTaxGTGT"></span></div>
-            <div class="row-item sub-item"><span>Thuế TNCN (0.5%)</span><span id="resTaxTNCN"></span></div>
-            <div class="row-item" style="margin-top:10px"><span>Giá vốn hàng bán</span><span id="resFinalCost" class="negative"></span></div>
-            <div class="final-row"><span>THỰC NHẬN (LÃI)</span><span id="resFinalProfit"></span></div>
-        </div>
+    <!-- Output -->
+    <h2 id="output">出力フォーマット（使う人が選ぶ）</h2>
+    <table>
+      <thead><tr><th>形式</th><th>向く用途</th><th>備考</th></tr></thead>
+      <tbody>
+        <tr><td><b>Excel</b></td><td>計算・社内検討・既存運用との親和</td><td>工数集計・機能 ON/OFF の再計算に強い</td></tr>
+        <tr><td><b>Markdown</b></td><td>編集の正本・Notion/GitHub 共有</td><td>明細の構造化データ（正本）</td></tr>
+        <tr><td><b>HTML</b></td><td>社内共有・図が綺麗・印刷でPDF</td><td>提出用レイアウト（社内用/提出用）</td></tr>
+        <tr><td><b>PDF</b></td><td>顧客提出・清書（体裁固定）</td><td>HTMLを印刷→PDF</td></tr>
+        <tr><td><b>PPTX</b></td><td>説明会・提案プレゼン</td><td>提案書ジェネレータで明るい図解デッキを自動生成</td></tr>
+      </tbody>
+    </table>
+    <p class="callout">正本は <b>Markdown（明細の構造化データ）</b>。他形式はそこから派生生成します。内容を直すときは正本を直して各形式を作り直す——これで内容が一元管理されます。詳細は <code>00_AI_Instructions/output_formats.md</code>。</p>
+
+    <!-- Excel usage -->
+    <h2 id="excel">Excelの使い方（社内用）</h2>
+    <p>AI に「Excel で出力して」と頼むと、<b>bravesoft 標準の見積もり Excel</b>（<code>02_Estimation_Template/estimate_template.xlsx</code> が空テンプレ）が出ます。<b>誰でも 3 ステップ</b>・青いセルを変えるだけ。プログラミングの知識は要りません。</p>
+
+    <div class="cards">
+      <div class="card"><div class="n">1</div><h4>⚙ 設定を埋める</h4><p>「設定」シートの<b>青いセル</b>に単価・管理費率・バッファ・税率・値引きを入力。ここを変えると全シートの金額が自動で再計算されます。</p></div>
+      <div class="card"><div class="n">2</div><h4>📋 前提条件を埋める</h4><p>見積根拠・対応範囲・<b>対象外</b>・契約形態・納品物を記入。独立シートで、顧客説明ではまずこれを提示（「外れたら別途」の保険）。</p></div>
+      <div class="card"><div class="n">3</div><h4>✓ 見積書で明細を調整</h4><p>「見積書」シートで工数・担当・項目を直し、要らない行は A 列の<b>計上を ✓→－</b>に。隣の<b>見積サマリ</b>・PM費・税込・スケジュールまで全部が連動します。</p></div>
     </div>
+
+    <h3>シート早わかり</h3>
+    <table>
+      <thead><tr><th>シート</th><th>何をする？</th></tr></thead>
+      <tbody>
+        <tr><td><b>📖 使い方</b></td><td>操作ガイド・色の凡例・用語（人日/準委任 等）。各シートにも「⏭ 次にやること」が書いてあります。</td></tr>
+        <tr><td><b>⚙ 設定</b></td><td>単価表（役割別・社内/社外）・管理費率・バッファ・税率・値引き・体制維持費・更新履歴。<b>青セル＝入力欄</b>。</td></tr>
+        <tr><td><b>📋 前提条件</b></td><td>見積根拠・対応範囲・<b>対象外</b>・契約形態・環境・納品物・検収条件（Rule 3）。独立シートで、顧客説明で最初に提示。</td></tr>
+        <tr><td><b>📊 見積サマリ</b></td><td><b>案件概要＋金額サマリ</b>が1枚に（見積書の隣・数式連携）。フェーズ別の工数・金額税抜、合計税抜/消費税/税込。<b>開いた瞬間に合計が見える</b>（下スクロール不要）。顧客提出は A:D（採算は範囲外）。</td></tr>
+        <tr><td><b>📝 見積書</b></td><td>顧客に渡す<b>見積明細</b>。計上✓で金額を出し入れ。社外金額（税抜）が主役で、<b>社内金額・利益率・根拠・MWOは折りたたみグループ</b>（社内用・ワンクリックで隠せる）。顧客提出は印刷範囲 A:I を PDF。</td></tr>
+        <tr><td><b>📅 スケジュール</b></td><td>開始日・並走人数を変えると<b>ガント・総期間が自動で動く</b>。工数は見積書と連動。</td></tr>
+        <tr><td><b>🗣 ヒアリングシート</b></td><td>お客様ヒアリングの<b>観点漏れ防止</b>チェック（51+3項目）。見積もりから分かる項目はAIが回答を事前記入。人は各観点を見て<b>「確認」に✓を付けるだけ</b>（✓で行が緑に色付く／上部に「確認済み○/54」）。</td></tr>
+        <tr><td><b>🛡 非機能要件チェック</b></td><td>性能・セキュリティ・運用など29観点を、対象分野（アプリ/Web/サーバ/インフラ）ごとに 対象/対象外/要確認 で判定（Rule 2）。</td></tr>
+        <tr><td><b>🗂 案比較</b></td><td>Must案/フル案など複数案を並べたときだけ登場。工数・金額・利益率を横並び比較。</td></tr>
+      </tbody>
+    </table>
+    <p class="callout"><b>金額は「見積サマリ」で一目、明細は「見積書」で編集</b>——2枚は数式で連携し、明細を直すとサマリが自動更新されます。社内の原価・利益率は<b>折りたたみグループ</b>（列の上の [－] ボタンで隠せる）に入っていて、顧客に渡す列（見積書＝A:I／サマリ＝A:D）だけを PDF にすれば、そのまま提出物になります（原価は出ません＝Rule 10）。</p>
+
+    <h3>🔤 優先度（MWO）列 ＝ 金額を動かすレバー</h3>
+    <p>見積書のいちばん右（社内グループ内）の<b>優先度（MWO）</b>列が、金額調整の要です。「予算オーバー」と言われたら、値引きより先にここで<b>スコープを調整</b>します（Rule 5）。</p>
+    <div class="cards">
+      <div class="card"><div class="n" style="background:linear-gradient(135deg,#253a58,#3a5680);">M</div><h4>Must（必須）</h4><p>これだけで成立する最小構成。外せない機能。</p></div>
+      <div class="card"><div class="n">W</div><h4>Want（できれば）</h4><p><b>予算調整の余地</b>。明細では青太字。削るならまずここ。</p></div>
+      <div class="card"><div class="n" style="background:var(--text-muted);">O</div><h4>Out（対象外）</h4><p>やらないこと。グレー表示・0円。</p></div>
+      <div class="card"><div class="n" style="background:linear-gradient(135deg,#e5484d,#f0787c);">★</div><h4>未確定</h4><p>要件が固まっていない。赤表示・0計上で一覧に残す。</p></div>
+    </div>
+    <p class="callout">明細の右に <b>💡 優先度（MWO）別の金額</b>が自動集計されます。「M だけの金額」「<b>W の合計（＝いくら削れるか）</b>」「Must だけに絞った提示額（概算）」が一目で分かるので、① 💡 で W の合計を見る → ② W の行の計上を <b>－</b> にする、の順で予算に合わせられます。</p>
+
+    <h3>安心して使うためのポイント</h3>
+    <ul>
+      <li><b>社内数字は隠せます</b>：社内金額・利益率は「見積書」の<b>折りたたみグループ</b>に入っています。顧客に渡すときは列を折りたたんで印刷範囲 A:I を PDF、または AI に「提出用の HTML / PDF を生成して」と頼めば、原価・利益率は出ません（Rule 10）。</li>
+      <li><b>数式は保護済み</b>：金額セルは誤って上書きしないようロック（パスワード無し）。触るのは青いセルだけで OK。</li>
+      <li><b>作り直しは AI に</b>：行の大量追加・フェーズ追加は、AI に「見積もり Excel を再生成して」と頼むのが確実です。</li>
+    </ul>
+    <p class="callout">仕様の詳細は <code>02_Estimation_Template/excel_format_spec.md</code>、生成ツールは <code>05_Tools/generate_estimate_excel.py</code>。</p>
+
+    <!-- Prompts -->
+    <h2 id="prompts">プロンプト定型集</h2>
+    <p>AI にコピペで渡せる定型。<b>初回プロンプトを忘れても</b>、入口ファイル（CLAUDE.md 等）により AI が自動でキットに乗ります（Rule 14）。</p>
+
+    <h3>① 見積もりをフルで依頼する</h3>
+    <div class="prompt"><button class="copy" onclick="cp(this)">コピー</button>「<span class="hl" style="background:none;color:#79b8ff">案件名 / どんなプロダクトか</span>」を見積もってください。
+手元の資料（RFP・画面一覧・既存アプリのURL・API仕様・議事録など）は、断片でも全部渡します。まずそれに目を通してください。
+00_AI_Instructions/workflow_guide.md に従い、資料で埋まらない分だけ（背景・対象OS・契約形態・予算感・機密区分など）をヒアリングしてください（迷う項目は「お任せ」と言います）。
+そのうえで、Go/No-Go判断 → 機能分解(非機能チェック) → 工数積み上げ(根拠つき) → 金額・採算 → スケジュール → クロスチェック の順で進めてください。
+金額の確定と外部提出は私の承認を取ってから進めてください。</div>
+
+    <h3>② この案件、受けるべき？（Go/No-Go）</h3>
+    <div class="prompt"><button class="copy" onclick="cp(this)">コピー</button>「<span style="color:#79b8ff">案件概要</span>」、受けるべきか判断したいです。
+Step_02 に従い、実現可能性・リスク・採算の見立て・前提の充足度を評価して、
+「進める / 条件付き / 見送り」の判断材料を Go/No-Go レポートにまとめてください。最終判断は私がします。</div>
+
+    <h3>③ ざっくりいくら？（軽量・レポート不要）</h3>
+    <div class="prompt"><button class="copy" onclick="cp(this)">コピー</button>ざっくりの概算を知りたいです（レポート不要、チャットでOK）。
+04_Quick_Estimation の流儀で、主要機能を粗く積み上げ（PM・テスト・リリースは必ず足す）、前提と対象外を添えて、
+レンジ（〜万円 / 〜人日 / 〜ヶ月）と見積精度（±%）で出してください。どんぶり勘定の一言金額はNGで。</div>
+
+    <h3>④ 出力形式を指定する</h3>
+    <div class="prompt"><button class="copy" onclick="cp(this)">コピー</button>できた見積もりを <span style="color:#79b8ff">Excel / PDF / PPTX</span> で出力してください。
+output_formats.md と Step_09 に従い、社内用（原価・利益率あり）と提出用（なし）を分けて、bravesoftデザインで。
+提出用は提出前チェックリストを通し、原価・利益率・個人名の混入が無いか最終確認してから出してください。</div>
+
+    <h3>⑤ 別セッションから再開する</h3>
+    <div class="prompt"><button class="copy" onclick="cp(this)">コピー</button>前回の続きをお願いします。
+00_AI_Instructions/ai_context_log.md と docs/estimation_brief.md を読んで、前回までの状態を復元してから、進行中の Step を続けてください。</div>
+
+    <!-- Rules -->
+    <h2 id="rules">15のルール</h2>
+    <p>最初の6つが「核（良い見積もりの作法）」、残りが運用・安全ルール。正式定義は <code>workflow_guide.md</code>。</p>
+    <table>
+      <tbody>
+        <tr><td><b>Rule 1</b></td><td>積み上げ厳守（No Basis, No Number）。機能分解→工数×単価、各項目に根拠</td></tr>
+        <tr><td><b>Rule 2</b></td><td>抜け漏れゼロ。フェーズ×カテゴリで逆引き、PM・テスト・リリース・非機能を必ず通す</td></tr>
+        <tr><td><b>Rule 3</b></td><td>前提・スコープ固定。見積根拠/対応範囲/対象外/契約形態/環境/納品物を明記</td></tr>
+        <tr><td><b>Rule 4</b></td><td>統一フォーマット＆内部/提出の分離。1つの正本から社内用と提出用を派生</td></tr>
+        <tr><td><b>Rule 5</b></td><td>バッファ・管理費・採算を明示。利益率を必ず確認、隠さない・後付けしない</td></tr>
+        <tr><td><b>Rule 6</b></td><td>非エンジニア・ファースト／出力は利用者が選ぶ（Excel/HTML/PDF/PPTX）</td></tr>
+        <tr><td>Rule 7</td><td>動的ヒアリング（いきなり数字を出さず Step01 で背景・案件概要を確認・記録）</td></tr>
+        <tr><td>Rule 8</td><td>事実・前提・仮定を分離。未確定は TBD / 確度 / 別途見積もり と明示</td></tr>
+        <tr><td>Rule 9</td><td>単価・前提の鮮度。標準単価・技術前提は最新を確認、作成日・有効期限を明記</td></tr>
+        <tr><td>Rule 10</td><td>機密・社内情報の分離。原価・利益率・社内単価・個人名を提出物に混入させない</td></tr>
+        <tr><td>Rule 11</td><td>コンテキストログ運用（追記主義）</td></tr>
+        <tr><td>Rule 12</td><td>次アクション明示（毎ターン）</td></tr>
+        <tr><td>Rule 13</td><td>人間レビューゾーン（Go/No-Go・金額/採算の確定・外部提出前は承認）</td></tr>
+        <tr><td>Rule 14</td><td>初回プロンプト自動実行保証（ブートストラップ）</td></tr>
+        <tr><td>Rule 15</td><td>常に最大能力で見積もる（Opus 4.8 / 工数Max）</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Files -->
+    <h2 id="files">ファイル構成</h2>
+    <table>
+      <thead><tr><th>場所</th><th>役割</th></tr></thead>
+      <tbody>
+        <tr><td><code>CLAUDE.md</code> / <code>AGENTS.md</code> / <code>.cursor/rules/</code></td><td>入口（自動起動）。消さない</td></tr>
+        <tr><td><code>00_AI_Instructions/workflow_guide.md</code></td><td>規約の正本（Rule・通信テンプレ・9ステップ）</td></tr>
+        <tr><td><code>00_AI_Instructions/ai_context_log.md</code></td><td>セッション横断の記憶ログ</td></tr>
+        <tr><td><code>00_AI_Instructions/pricing_and_rates.md</code></td><td>標準単価・係数・管理費率（案件ごとに動的に変更）</td></tr>
+        <tr><td><code>00_AI_Instructions/output_formats.md</code></td><td>Excel/HTML/MD/PDF/PPTX 出力ガイド</td></tr>
+        <tr><td><code>01_Estimation_Steps/Step_01〜09</code></td><td>メインフロー（見積もり→提案）</td></tr>
+        <tr><td><code>02_Estimation_Template/</code></td><td>正本(md) / 提出用見積・スケジュール(html) / <b>見積もり Excel テンプレ(xlsx)</b> / <b>提案書テンプレ(pptx)</b> / Excel仕様 / お手本</td></tr>
+        <tr><td><code>05_Tools/</code></td><td><b>generate_estimate_excel.py</b>（見積もり Excel 生成）/ <b>generate_proposal_pptx.py</b>（提案書デッキ生成）/ 入力例 sample_input.json</td></tr>
+        <tr><td><code>03_Assessment_and_Checklists/</code></td><td>Go/No-Go・ヒアリング・非機能チェック・前提/スコープ・納品物・提出前チェック</td></tr>
+        <tr><td><code>04_Quick_Estimation/</code></td><td>軽量見積もりモード</td></tr>
+        <tr><td><code>docs/estimates/</code> · <code>assets/</code></td><td>生成した見積もり · ロゴ/brand.css</td></tr>
+      </tbody>
+    </table>
+
+    <!-- FAQ -->
+    <h2 id="faq">FAQ</h2>
+    <details><summary>相場感やどんぶり勘定で金額が出たりしませんか？</summary><p>Rule 1（積み上げ厳守）で防いでいます。機能を項目まで分解し、各項目に 工数(人日)×単価 と「なぜこの工数か」の根拠を付けて積み上げます。「○○高くない？」に積み上げ根拠で即答できる状態（見積根拠資料）まで作ります。相場・記憶・一式の大きな金額は禁止です。</p></details>
+    <details><summary>顧客に原価や利益率が漏れたりしませんか？</summary><p>Rule 4・10 で、1つの正本から「社内用（原価・利益率あり）」と「提出用（なし）」を分けて出します。社内用HTMLには「🔒提出禁止」バナーが付き、提出前チェックリストの機密項目（原価・利益率・社内単価・個人名の混入なし）を必ず通し、人レビューを経て提出します。</p></details>
+    <details><summary>「この案件、受けるべき？」だけ相談できますか？</summary><p>できます（Step 02）。実現可能性・リスク・採算の見立て・前提の充足度を評価し、「進める / 条件付き / 見送り」の判断材料を Go/No-Go レポートにまとめます。最終判断は人間です（Rule 13）。</p></details>
+    <details><summary>単価や管理費は案件で変えられますか？</summary><p>はい。単価・管理費率・バッファ係数は<b>案件ごとのパラメータ</b>です。<code>estimate_master.md</code> 冒頭の「見積もり設定」や Excel の入力セルを変えると集計が連動します。標準値は <code>pricing_and_rates.md</code>（暫定・要確認）。役割別・案件別に変わる前提です。</p></details>
+    <details><summary>非エンジニアでも本当に使えますか？</summary><p>はい（Rule 6）。AI が背景・案件概要からこちらの主導でヒアリングし、人日・準委任/請負・非機能などの用語はかみ砕いて説明します。出力形式も選べ、毎ターン「次に何をすればいいか」を提示するので迷子になりません。</p></details>
+    <details><summary>抜け漏れ（PM・テスト・非機能など）は防げますか？</summary><p>Rule 2 で、フェーズ×カテゴリのマトリクスで機能を逆引きし、PM・管理費／テスト／リリース・ストア申請／ドキュメントを必ず確認します。さらに <code>nonfunctional_requirements_checklist.md</code> を 1 回通し、性能・セキュリティ・運用などの非機能を「対象/対象外」で判断します。</p></details>
+    <details><summary>ブランドの色やロゴを調整したい</summary><p>配色・ロゴ・タイポは <strong>bravesoft 公式デザインシステム（ルート <code>DESIGN.md</code>）</strong>準拠です（primary <code>#0066FF</code> / ink <code>#090A0A</code> / navy <code>#253A58</code>、Noto Sans JP ＋ Roboto Mono、ロゴ <code>assets/bravesoft-logo.png</code>）。微調整は <code>index.html</code> と各テンプレ先頭の <code>:root</code> ブランドトークン（<code>--brand</code> 等）を書き換えれば全体に反映されます。</p></details>
+    <details><summary>毎回ちゃんと作らないとダメ？ ざっくりだけ欲しいときは？</summary><p><code>04_Quick_Estimation/</code> の軽量モードがあります。「積み上げ・前提明示・機密分離・人レビュー」の原則は守りつつ、手順だけ最小化してレンジで概算を出せます。「ちゃんとした見積もりにして」と言えば本フローに合流します。</p></details>
+
+    <footer>
+      AI-Driven Estimation &amp; Proposal Kit v0.1.1 · bravesoft Inc. · MIT License<br>
+      規約の正本は <code>00_AI_Instructions/workflow_guide.md</code>。設計思想は姉妹キット Research &amp; Reporting / iOS Development Kit と共通。
+    </footer>
+  </main>
 </div>
 
 <script>
-    function switchTab(n) {
-        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.getElementById('sec-' + n).classList.add('active');
-        document.getElementById('t-' + n).classList.add('active');
-    }
-
-    function handleImg(input, target) {
-        let reader = new FileReader();
-        reader.onload = e => document.getElementById(target).value = e.target.result;
-        reader.readAsDataURL(input.files[0]);
-    }
-
-    function calcSi() {
-        let v = (parseFloat(document.getElementById('siJpy').value)*parseFloat(document.getElementById('siRate').value)) + parseFloat(document.getElementById('siShip').value) + parseFloat(document.getElementById('siPack').value);
-        let lv = [1.17, 1.136, 1.102], ids = [10, 30, 50];
-        ids.forEach((id, i) => {
-            let p = Math.round(((v * lv[i]) / 0.98) / 1000) * 1000;
-            document.getElementById('s'+id).innerText = p.toLocaleString() + 'đ';
-            document.getElementById('p'+id).innerText = 'Lãi: ' + Math.round((p*0.98) - v).toLocaleString() + 'đ';
-        });
-        document.getElementById('siRes').style.display = 'grid';
-        document.getElementById('btnSaveSi').style.display = 'block';
-    }
-
-    function saveSi() {
-        let l = JSON.parse(localStorage.getItem('DB_SI') || "[]");
-        l.push({ n: document.getElementById('siName').value, i: document.getElementById('siImgBase64').value, v: document.getElementById('siJpy').value, s10: document.getElementById('s10').innerText, p10: document.getElementById('p10').innerText, s30: document.getElementById('s30').innerText, p30: document.getElementById('p30').innerText, s50: document.getElementById('s50').innerText, p50: document.getElementById('p50').innerText });
-        localStorage.setItem('DB_SI', JSON.stringify(l)); renderSi();
-    }
-
-    function renderSi() {
-        let h = ''; JSON.parse(localStorage.getItem('DB_SI') || "[]").forEach((item, idx) => {
-            h += `<tr><td><img src="${item.i}" class="img-preview"></td><td>${item.n}</td><td>${item.v} JPY</td><td>${item.s10}<br><small>${item.p10}</small></td><td>${item.s30}<br><small>${item.p30}</small></td><td>${item.s50}<br><small>${item.p50}</small></td><td><button onclick="del('DB_SI',${idx},renderSi)" style="background:#999; padding:5px; font-size:10px;">Xóa</button></td></tr>`;
-        });
-        document.getElementById('bodySi').innerHTML = h;
-    }
-
-    function saveLe() {
-        let l = JSON.parse(localStorage.getItem('DB_LE') || "[]");
-        l.push({ n: document.getElementById('leName').value, c: document.getElementById('leCost').value, s: document.getElementById('leSale').value });
-        localStorage.setItem('DB_LE', JSON.stringify(l)); renderLe();
-    }
-
-    function renderLe() {
-        let h = ''; JSON.parse(localStorage.getItem('DB_LE') || "[]").forEach((item, idx) => {
-            let profit = item.s - (item.s * 0.254) - item.c;
-            h += `<tr><td>${item.n}</td><td>${item.c.toLocaleString()}</td><td>${item.s.toLocaleString()}</td><td style="color:green; font-weight:bold">${Math.round(profit).toLocaleString()}đ</td><td><button onclick="del('DB_LE',${idx},renderLe)" style="background:#999; padding:5px; font-size:10px;">Xóa</button></td></tr>`;
-        });
-        document.getElementById('bodyLe').innerHTML = h;
-    }
-
-    function analyzeDetail() {
-        let cost = parseFloat(document.getElementById('detCost').value) || 0;
-        let sale = parseFloat(document.getElementById('detSale').value) || 0;
-        let fix = sale * 0.14, vxtra = sale * 0.04, service = 3000 + vxtra, pay = sale * 0.049, totalFee = fix + service + pay;
-        let t1 = sale * 0.01, t2 = sale * 0.005, totalTax = t1 + t2;
-        let profit = sale - totalFee - totalTax - cost;
-
-        document.getElementById('resTotal').innerText = sale.toLocaleString() + "đ";
-        document.getElementById('resFeeTotal').innerText = "-" + Math.round(totalFee).toLocaleString() + "đ";
-        document.getElementById('resFix').innerText = "-" + Math.round(fix).toLocaleString() + "đ";
-        document.getElementById('resVxtra').innerText = "-" + Math.round(vxtra).toLocaleString() + "đ";
-        document.getElementById('resService').innerText = "-" + Math.round(service).toLocaleString() + "đ";
-        document.getElementById('resPay').innerText = "-" + Math.round(pay).toLocaleString() + "đ";
-        document.getElementById('resTaxTotal').innerText = "-" + Math.round(totalTax).toLocaleString() + "đ";
-        document.getElementById('resTaxGTGT').innerText = "-" + Math.round(t1).toLocaleString() + "đ";
-        document.getElementById('resTaxTNCN').innerText = "-" + Math.round(t2).toLocaleString() + "đ";
-        document.getElementById('resFinalCost').innerText = "-" + cost.toLocaleString() + "đ";
-        document.getElementById('resFinalProfit').innerText = Math.round(profit).toLocaleString() + "đ";
-        document.getElementById('analysisBox').style.display = 'block';
-    }
-
-    function del(k, i, cb) { if(confirm('Xóa?')) { let l = JSON.parse(localStorage.getItem(k)); l.splice(i,1); localStorage.setItem(k, JSON.stringify(l)); cb(); } }
-    
-    window.onload = () => { renderSi(); renderLe(); }
+  /* 図はすべてインライン SVG（ネット非依存・オフライン/印刷でも確実に表示）。 */
+  function toggleTheme(){const r=document.documentElement;const n=r.getAttribute('data-theme')==='dark'?'light':'dark';r.setAttribute('data-theme',n);try{localStorage.setItem('epk-theme',n);}catch(e){} location.reload();}
+  function cp(btn){const t=btn.parentElement.innerText.replace(/^コピー\n?/,'');navigator.clipboard.writeText(t).then(()=>{btn.textContent='コピー済';btn.classList.add('ok');setTimeout(()=>{btn.textContent='コピー';btn.classList.remove('ok');},1500);});}
 </script>
 </body>
 </html>

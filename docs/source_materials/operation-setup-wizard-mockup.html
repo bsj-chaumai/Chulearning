@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WDP Operation Setup Wizard — Full Mockup (4 methods)</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --primary: #1e4d8c; --primary-light: #e8f0fa; --accent: #f5a623; --accent-hover: #e09515;
+      --success: #2d8a4e; --success-bg: #e8f5ec; --danger: #c0392b; --danger-bg: #fdecea;
+      --warn: #d97706; --warn-bg: #fffbeb; --bg: #f0f2f5; --card: #fff; --text: #1a2332;
+      --muted: #6b7c93; --border: #dde3ec; --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Hiragino Sans","Meiryo","Segoe UI",sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    .landing { max-width: 960px; margin: 0 auto; padding: 32px 20px; }
+    .landing h1 { font-size: 1.4rem; margin-bottom: 8px; }
+    .landing p { color: var(--muted); font-size: 0.9rem; margin-bottom: 16px; line-height: 1.6; }
+    .method-overview { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; margin: 20px 0; }
+    @media(max-width:640px){ .method-overview { grid-template-columns: 1fr; } }
+    .mo-card { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; font-size: 0.8rem; }
+    .mo-card strong { display: block; margin-bottom: 4px; font-size: 0.85rem; }
+    .mo-card span { color: var(--muted); }
+    .open-wizard-btn { background: var(--primary); color: #fff; padding: 12px 28px; border-radius: 8px; border: none; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+
+    .overlay { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 100; }
+    .overlay.hidden { display: none; }
+    .wizard { background: var(--card); border-radius: 16px; width: 100%; max-width: 760px; max-height: 92vh; display: flex; flex-direction: column; box-shadow: 0 24px 64px rgba(0,0,0,.2); overflow: hidden; }
+
+    .wizard-header { padding: 20px 24px 0; border-bottom: 1px solid var(--border); }
+    .wizard-header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .wizard-title { font-size: 1.15rem; font-weight: 700; }
+    .wizard-subtitle { font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+    .method-badge { display: inline-block; margin-top: 6px; font-size: 0.72rem; background: var(--primary-light); color: var(--primary); padding: 3px 10px; border-radius: 99px; font-weight: 600; }
+    .close-btn { background: none; border: none; font-size: 1.3rem; color: var(--muted); cursor: pointer; }
+
+    .progress-bar-wrap { margin-bottom: 16px; }
+    .progress-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--muted); margin-bottom: 6px; }
+    .progress-track { height: 6px; background: var(--border); border-radius: 99px; overflow: hidden; }
+    .progress-fill { height: 100%; background: var(--primary); border-radius: 99px; transition: width .4s; }
+
+    .steps-nav { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 12px; }
+    .step-dot { display: flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--muted); white-space: nowrap; padding: 4px 8px; border-radius: 6px; }
+    .step-dot.active { color: var(--primary); font-weight: 600; background: var(--primary-light); }
+    .step-dot.done { color: var(--success); }
+    .step-dot .num { width: 20px; height: 20px; border-radius: 50%; background: var(--border); display: flex; align-items: center; justify-content: center; font-size: 0.65rem; font-weight: 700; }
+    .step-dot.active .num { background: var(--primary); color: #fff; }
+    .step-dot.done .num { background: var(--success); color: #fff; }
+
+    .wizard-body { padding: 24px; overflow-y: auto; flex: 1; }
+    .step-panel { display: none; } .step-panel.active { display: block; }
+    .step-heading { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+    .step-desc { font-size: 0.85rem; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+
+    .help-box { border-left: 3px solid var(--primary); background: var(--primary-light); border-radius: 0 8px 8px 0; padding: 12px 16px; font-size: 0.82rem; margin-bottom: 16px; line-height: 1.6; }
+    .help-box.success { border-left-color: var(--success); background: var(--success-bg); }
+    .help-box.warn { border-left-color: var(--warn); background: var(--warn-bg); }
+    .help-box .label { font-weight: 700; font-size: 0.75rem; margin-bottom: 4px; }
+
+    .compare-banner { background: var(--warn-bg); border: 1px solid #fcd34d; border-radius: 8px; padding: 10px 14px; font-size: 0.78rem; margin-bottom: 16px; }
+    .compare-banner .old { color: var(--danger); text-decoration: line-through; }
+    .compare-banner .new { color: var(--success); font-weight: 700; }
+
+    .method-grid { display: grid; gap: 10px; }
+    .method-card { border: 2px solid var(--border); border-radius: var(--radius); padding: 14px 16px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; transition: .15s; }
+    .method-card:hover, .method-card.selected { border-color: var(--primary); background: var(--primary-light); }
+    .method-card input { margin-top: 3px; accent-color: var(--primary); }
+    .method-card .info { flex: 1; }
+    .method-card .name { font-weight: 600; font-size: 0.9rem; }
+    .method-card .hint { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+    .method-card .tag { font-size: 0.68rem; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--success-bg); color: var(--success); margin-left: auto; }
+    .method-card .tag.special { background: #fef3c7; color: #92400e; }
+
+    .upload-grid { display: grid; gap: 16px; }
+    @media(min-width:560px){ .upload-grid { grid-template-columns: 1fr 1fr; } }
+    .upload-zone { border: 2px dashed var(--border); border-radius: var(--radius); padding: 20px 14px; text-align: center; cursor: pointer; display: block; }
+    .upload-zone:hover, .upload-zone.has-file { border-color: var(--primary); background: var(--primary-light); border-style: solid; }
+    .upload-zone .title { font-size: 0.85rem; font-weight: 600; }
+    .upload-zone .sub { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+    .upload-zone .file-name { font-size: 0.78rem; color: var(--success); font-weight: 600; margin-top: 8px; word-break: break-all; }
+    .upload-zone input { display: none; }
+    .sample-link { font-size: 0.78rem; color: var(--primary); text-decoration: underline; cursor: pointer; display: block; margin-bottom: 8px; }
+
+    .mapping-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 16px; }
+    .mapping-table th { text-align: left; padding: 8px 12px; background: var(--bg); font-size: 0.75rem; color: var(--muted); }
+    .mapping-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .mapping-table select, .mapping-table input { width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; }
+    .confidence { font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 99px; background: var(--success-bg); color: var(--success); }
+    .confidence.low { background: var(--warn-bg); color: var(--warn); }
+    .confidence.none { background: var(--danger-bg); color: var(--danger); }
+
+    .preview-table { width: 100%; border-collapse: collapse; font-size: 0.75rem; margin-top: 8px; }
+    .preview-table th, .preview-table td { border: 1px solid var(--border); padding: 6px 8px; max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .preview-table th { background: var(--bg); } .preview-table .hl { background: #fffbeb; font-weight: 600; }
+
+    .meraki-panel { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+    .meraki-step { display: grid; grid-template-columns: 72px 1fr; border-bottom: 1px solid var(--border); }
+    .meraki-step:last-child { border-bottom: none; }
+    .meraki-step .side { background: #f8fafc; padding: 16px 10px; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-align: center; }
+    .meraki-step .content { padding: 16px; font-size: 0.85rem; }
+    .meraki-btn { display: inline-block; background: var(--primary); color: #fff; padding: 8px 16px; border-radius: 99px; font-size: 0.8rem; font-weight: 600; margin-bottom: 10px; cursor: pointer; border: none; }
+    .meraki-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; margin-top: 8px; font-size: 0.85rem; }
+    .copy-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+    .copy-chip { background: var(--primary-light); color: var(--primary); border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 600; cursor: pointer; }
+
+    .settings-section { margin-bottom: 20px; }
+    .settings-section h4 { font-size: 0.85rem; font-weight: 600; margin-bottom: 4px; }
+    .settings-section .explain { font-size: 0.78rem; color: var(--muted); margin-bottom: 10px; line-height: 1.5; }
+    .checkbox-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .checkbox-grid label { display: flex; align-items: center; gap: 5px; font-size: 0.82rem; padding: 5px 10px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
+    .checkbox-grid label:has(input:checked) { border-color: var(--primary); background: var(--primary-light); }
+    .holiday-list { max-height: 100px; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-size: 0.78rem; }
+
+    .review-grid { display: grid; gap: 12px; }
+    .review-item { background: var(--bg); border-radius: 8px; padding: 12px 16px; font-size: 0.85rem; }
+    .review-item .key { color: var(--muted); font-size: 0.75rem; margin-bottom: 2px; }
+    .review-item .val { font-weight: 600; word-break: break-word; }
+
+    .wizard-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; background: #fafbfc; }
+    .btn { padding: 10px 24px; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; border: none; }
+    .btn-ghost { background: none; color: var(--muted); border: 1px solid var(--border); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:disabled { opacity: .45; cursor: not-allowed; }
+    .hidden { display: none !important; }
+    .tip { display: inline-flex; width: 16px; height: 16px; border-radius: 50%; background: var(--border); color: var(--muted); font-size: 0.65rem; font-weight: 700; align-items: center; justify-content: center; cursor: help; }
+    code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 0.85em; }
+  </style>
+</head>
+<body>
+
+<div class="landing" id="landing">
+  <h1>WDP Operation Setup — Full Wizard Mockup</h1>
+  <p>4つのデータソース（Wifi CSV / 入退室Excel / 手入力Excel / Meraki）を <strong>1つのウィザード</strong> に統合。ステップ2でファイルを選ぶと、FEが即座にカラムを提案します（ルールベース・AI不使用）。</p>
+
+  <div class="method-overview">
+    <div class="mo-card"><strong>① Wifi CSV</strong><span>clientMac + Unix Timestamp</span></div>
+    <div class="mo-card"><strong>② 入退室ログ Excel</strong><span>ID + 日時 + ゲート + 入退室フラグ</span></div>
+    <div class="mo-card"><strong>③ 手入力 Excel</strong><span>社員ID + 日時（ロング形式）</span></div>
+    <div class="mo-card"><strong>④ Meraki 自動収集</strong><span>ファイル不要・Validation設定</span></div>
+  </div>
+
+  <button class="open-wizard-btn" onclick="openWizard()">▶ 稼働分析セットアップを開始</button>
+  <p style="margin-top:16px;font-size:0.78rem;color:var(--muted)">サンプルファイル: <code>docs/examples/operation-samples/</code></p>
+</div>
+
+<div class="overlay hidden" id="overlay">
+  <div class="wizard">
+    <div class="wizard-header">
+      <div class="wizard-header-top">
+        <div>
+          <div class="wizard-title">稼働分析セットアップ</div>
+          <div class="wizard-subtitle">Operation Analysis Setup Wizard</div>
+          <div class="method-badge" id="current-method-badge">手入力のExcelデータ</div>
+        </div>
+        <button class="close-btn" onclick="closeWizard()">✕</button>
+      </div>
+      <div class="progress-bar-wrap">
+        <div class="progress-meta"><span id="progress-label">ステップ 1 / 5</span><span id="progress-pct">20%</span></div>
+        <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:20%"></div></div>
+      </div>
+      <div class="steps-nav" id="steps-nav"></div>
+    </div>
+
+    <div class="wizard-body">
+      <!-- STEP 0: Method -->
+      <div class="step-panel active" id="step-0">
+        <div class="step-heading">データソースを選択</div>
+        <div class="step-desc">旧UIでは「稼働分析情報」画面で後から選び、各ソースごとに別の詳細設定画面がありました。新UIでは<strong>最初に選択</strong>し、以降のステップが自動で切り替わります。</div>
+        <div class="method-grid" id="method-grid"></div>
+      </div>
+
+      <!-- STEP 1: Upload or Meraki -->
+      <div class="step-panel" id="step-1">
+        <div id="file-step-content">
+          <div class="compare-banner">🔄 旧: <span class="old">出社滞在・従業員で2画面</span> → 新: <span class="new">1画面・FE即時チェック</span></div>
+          <div class="step-heading">ファイルをアップロード</div>
+          <div class="step-desc" id="file-step-desc"></div>
+          <div class="help-box" id="file-help"></div>
+          <div class="upload-grid" id="upload-grid"></div>
+          <div class="help-box success hidden" id="validate-result"><div class="label">✅ FE読み取り結果</div><span id="validate-text"></span></div>
+        </div>
+        <div id="meraki-step-content" class="hidden">
+          <div class="step-heading">Merakiアクセスポイント連携</div>
+          <div class="step-desc">ファイルアップロードは不要です。Meraki管理画面とAWSスタックを連携します。</div>
+          <div class="meraki-panel">
+            <div class="meraki-step">
+              <div class="side">STEP1</div>
+              <div class="content">
+                <button type="button" class="meraki-btn">Meraki管理画面を開く</button>
+                <p>Validation文字列をMeraki管理画面からコピーし、下記に貼り付けて「登録」してください。</p>
+                <input class="meraki-input" id="meraki-validation" placeholder="Validation文字列を貼り付け" />
+              </div>
+            </div>
+            <div class="meraki-step">
+              <div class="side">STEP2</div>
+              <div class="content">
+                <p>SecretKeyとEndpointをMerakiに登録し、接続を確認してください。</p>
+                <div class="copy-row">
+                  <span class="copy-chip" onclick="copyText('sk-demo-meraki-secret-key')">📋 SecretKey</span>
+                  <span class="copy-chip" onclick="copyText('https://api.example.com/meraki/webhook')">📋 Endpoint</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 2: Mapping -->
+      <div class="step-panel" id="step-2">
+        <div class="compare-banner">🔄 旧: <span class="old">詳細設定で手入力</span> → 新: <span class="new">FEルールで自動提案 → 確認</span></div>
+        <div class="step-heading">カラム設定の確認</div>
+        <div class="step-desc" id="mapping-step-desc">旧UIの「詳細設定」と同じです。FEが列を提案しますが、<strong>プルダウンで別の列に変更できます。</strong></div>
+        <div class="help-box success" id="suggest-banner"><div class="label">⚙️ 自動提案（FE・ルールベース）</div><span id="suggest-summary">—</span></div>
+        <div class="file-source" id="mapping-source" style="font-size:0.78rem;color:var(--muted);margin-bottom:12px"></div>
+        <table class="mapping-table">
+          <thead>
+            <tr>
+              <th>項目</th>
+              <th>CSVのカラムリスト</th>
+              <th>setting</th>
+            </tr>
+          </thead>
+          <tbody id="mapping-tbody"></tbody>
+        </table>
+
+        <div class="help-box" id="format-help">
+          <div class="label">💡 Timestamp形式について</div>
+          <span id="format-help-text">—</span>
+        </div>
+      </div>
+
+      <!-- STEP 3: Aggregation -->
+      <div class="step-panel" id="step-3">
+        <div class="step-heading">集計条件の設定</div>
+        <div class="step-desc">デフォルト: 平日・9-18時・祝日除外。通常は変更不要です。</div>
+        <div class="settings-section">
+          <h4>📅 集計対象の曜日</h4>
+          <div class="explain">出社率・滞在率の平均に含める曜日。</div>
+          <div class="checkbox-grid" id="weekdays">
+            <label><input type="checkbox" value="月" checked>月</label><label><input type="checkbox" value="火" checked>火</label>
+            <label><input type="checkbox" value="水" checked>水</label><label><input type="checkbox" value="木" checked>木</label>
+            <label><input type="checkbox" value="金" checked>金</label><label><input type="checkbox" value="土">土</label><label><input type="checkbox" value="日">日</label>
+          </div>
+        </div>
+        <div class="settings-section">
+          <h4>🕐 集計対象の時間帯</h4>
+          <div class="checkbox-grid" id="timeslots"></div>
+        </div>
+        <div class="settings-section">
+          <h4>🎌 祝日除外</h4>
+          <div class="holiday-list"><label><input type="checkbox" checked> 2026/01/01 元日</label><label><input type="checkbox" checked> 2026/05/03 憲法記念日</label></div>
+        </div>
+        <div class="settings-section">
+          <h4>🔗 タッチポイント連携</h4>
+          <div class="checkbox-grid"><label><input type="radio" name="touchpoint" value="space" checked> 空間分析と連携</label><label><input type="radio" name="touchpoint" value="manual"> 手動入力</label></div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Review -->
+      <div class="step-panel" id="step-4">
+        <div class="step-heading">設定内容の確認</div>
+        <div class="step-desc">1回の保存で <code>POST /operation-analysis/setup</code> を呼び出します。</div>
+        <div class="review-grid" id="review-grid"></div>
+      </div>
+    </div>
+
+    <div class="wizard-footer">
+      <button class="btn btn-ghost" id="btn-back" onclick="prevStep()" disabled>← 戻る</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextStep()">次へ →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const METHODS = {
+  csvAccessPoint: {
+    id: 'csvAccessPoint', apiMethod: 'csvAccessPoint',
+    name: 'WifiアクセスポイントからのCSVデータ',
+    desc: 'Wifi接続ログのCSV。MACアドレスとUnixタイムスタンプ。',
+    tag: null,
+    accept: '.csv',
+    attendanceLabel: 'WifiアクセスポイントCSV（出社滞在）',
+    samplePath: 'operation-samples/sample-operation-analysis-attendance-info-access-point-demo.csv',
+    sampleName: 'sample-operation-analysis-attendance-info-access-point-demo.csv',
+    help: '<strong>列例:</strong> clientMac, Timestamp（Unix秒）<br>従業員マスタのIDとMACアドレスが一致する必要があります。',
+    mappingType: 'standard',
+    fields: [
+      { key: 'column_userId', label: 'ユーザーIDの列名', rules: [/clientmac/i, /mac/i, /^id$/i, /社員id/i, /ユーザー/] },
+      { key: 'column_timestamp', label: 'Timestampの列名', rules: [/timestamp/i, /日時/, /打刻/] },
+      { key: 'timestamp_format', label: '形式', setting: true, defaultFormat: 'timestamp' }
+    ]
+  },
+  csvAccessLog: {
+    id: 'csvAccessLog', apiMethod: 'csvAccessLog',
+    name: '入退室ログのExcelデータ',
+    desc: '入退室センサーのExcel。ゲート名と入退室フラグの設定が必要。',
+    tag: null,
+    accept: '.xlsx,.xls',
+    attendanceLabel: '入退室ログExcel（出社滞在）',
+    samplePath: 'operation-samples/sample-operation-analysis-attendance-info-access-log.xlsx',
+    sampleName: 'sample-operation-analysis-attendance-info-access-log.xlsx',
+    help: '<strong>列例:</strong> 日時ニチジ, 機器名称, 分類１（入室/退室）, ID<br>Excelシリアル日時の場合は形式が特殊です。',
+    mappingType: 'accessLog',
+    fields: [
+      { key: 'column_userId', label: 'ユーザーIDの列名', rules: [/^id$/i, /ユーザー/, /社員/, /mac/i] },
+      { key: 'column_timestamp', label: 'Timestampの列名', rules: [/日時/, /timestamp/i, /niciji/i] },
+      { key: 'timestamp_format', label: '形式', setting: true, defaultFormat: 'excel_serial' },
+      { key: 'column_target_gates', label: '入退室ゲートの列名', rules: [/機器/, /ゲート/, /gate/i, /名称/] },
+      { key: 'column_enter_exit', label: '入退室フラグの列名', rules: [/分類/, /入退/, /flag/i] },
+      { key: 'enter_values', label: '入室フラグ', setting: true, defaultValue: '入室' },
+      { key: 'exit_values', label: '退室フラグ', setting: true, defaultValue: '退室' }
+    ]
+  },
+  csvManual: {
+    id: 'csvManual', apiMethod: 'csvManual',
+    name: '手入力のExcelデータ',
+    desc: '社員ID・日時の列を持つExcel/CSV（ロング形式）。',
+    tag: 'おすすめ',
+    accept: '.xlsx,.xls,.csv',
+    attendanceLabel: '手入力Excel（出社滞在）',
+    samplePath: 'operation-samples/tegaki-shusha-taizai-sample.xlsx',
+    sampleName: 'tegaki-shusha-taizai-sample.xlsx',
+    help: '<strong>列例:</strong> 社員ID, 日時（1行目がヘッダー）<br>旧UIと同様、ユーザーID列・Timestamp列をプルダウンで選択します。',
+    mappingType: 'standard',
+    fields: [
+      { key: 'column_userId', label: 'ユーザーIDの列名', rules: [/社員id/i, /社員番号/i, /employee/i, /^id$/i, /ユーザーid/i] },
+      { key: 'column_timestamp', label: 'Timestampの列名', rules: [/^日時$/i, /日時/, /timestamp/i, /打刻/] },
+      { key: 'timestamp_format', label: '形式', setting: true, defaultFormat: 'excel_serial' }
+    ]
+  },
+  wifiAccessPoint: {
+    id: 'wifiAccessPoint', apiMethod: 'wifiAccessPoint',
+    name: 'Merakiアクセスポイントからの自動収集',
+    desc: 'Cisco Meraki連携。ファイル不要。',
+    tag: '要Meraki',
+    meraki: true,
+    fields: []
+  }
+};
+
+const STEP_LABELS = ['データソース', 'ファイル/連携', 'カラム設定', '集計条件', '確認'];
+let currentStep = 0;
+let selectedMethod = 'csvManual';
+const fileData = { employee: null, attendance: null };
+let mappingResult = {};
+
+// --- init ---
+function init() {
+  renderMethodCards();
+  renderStepNav();
+  for (let h = 0; h < 24; h++) {
+    const c = h >= 9 && h <= 18;
+    document.getElementById('timeslots').innerHTML += `<label><input type="checkbox" value="${h}" ${c?'checked':''}>${h}:00</label>`;
+  }
+  onMethodChange();
+  updateUI();
+}
+
+function renderMethodCards() {
+  const grid = document.getElementById('method-grid');
+  grid.innerHTML = Object.values(METHODS).map(m => `
+    <label class="method-card" data-method="${m.id}">
+      <input type="radio" name="method" value="${m.id}" ${m.id===selectedMethod?'checked':''}>
+      <div class="info"><div class="name">${m.name}</div><div class="hint">${m.desc}</div></div>
+      ${m.tag ? `<span class="tag ${m.tag==='要Meraki'?'special':''}">${m.tag}</span>` : ''}
+    </label>`).join('');
+  grid.querySelectorAll('.method-card').forEach(card => {
+    card.addEventListener('click', () => {
+      selectedMethod = card.dataset.method;
+      grid.querySelectorAll('.method-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      card.querySelector('input').checked = true;
+      onMethodChange();
+      updateUI();
+    });
+  });
+  grid.querySelector(`[data-method="${selectedMethod}"]`).classList.add('selected');
+}
+
+function renderStepNav() {
+  document.getElementById('steps-nav').innerHTML = STEP_LABELS.map((l,i) =>
+    `<div class="step-dot" data-step="${i}"><span class="num">${i+1}</span>${l}</div>`).join('');
+}
+
+function getMethod() { return METHODS[selectedMethod]; }
+
+function onMethodChange() {
+  const m = getMethod();
+  document.getElementById('current-method-badge').textContent = m.name;
+  fileData.employee = null; fileData.attendance = null; mappingResult = {};
+
+  const fileContent = document.getElementById('file-step-content');
+  const merakiContent = document.getElementById('meraki-step-content');
+  if (m.meraki) {
+    fileContent.classList.add('hidden');
+    merakiContent.classList.remove('hidden');
+  } else {
+    fileContent.classList.remove('hidden');
+    merakiContent.classList.add('hidden');
+    document.getElementById('file-step-desc').textContent =
+      `${m.attendanceLabel} と従業員マスタをアップロード。FEがヘッダーを読み取り、次のステップでマッピングを提案します。`;
+    document.getElementById('file-help').innerHTML = `<div class="label">💡 この方式について</div>${m.help}`;
+    document.getElementById('upload-grid').innerHTML = `
+      <label class="upload-zone" id="zone-employee" for="input-employee">
+        <a class="sample-link" href="operation-samples/sample-operation-analysis-attendance-info-access-log.xlsx" download onclick="event.stopPropagation()">📥 従業員サンプル（xlsx）</a>
+        <div class="title">従業員情報</div>
+        <div class="sub">CSV / Excel</div>
+        <div class="file-name" id="file-employee"></div>
+        <input type="file" id="input-employee" accept=".csv,.xlsx,.xls" onchange="handleFile('employee', this.files[0])">
+      </label>
+      <label class="upload-zone" id="zone-attendance" for="input-attendance">
+        <a class="sample-link" href="${m.samplePath}" download onclick="loadSampleAttendance(event)">📥 ${m.sampleName}</a>
+        <div class="title">${m.attendanceLabel}</div>
+        <div class="sub">${m.accept}</div>
+        <div class="file-name" id="file-attendance"></div>
+        <input type="file" id="input-attendance" accept="${m.accept}" onchange="handleFile('attendance', this.files[0])">
+      </label>`;
+    document.getElementById('validate-result').classList.add('hidden');
+  }
+}
+
+// --- file parsing ---
+function parseCSV(text, maxRows = 15) {
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(l => l.trim());
+  if (!lines.length) return { columns: [], rows: [], rowCount: 0 };
+  const delim = lines[0].includes('\t') ? '\t' : ',';
+  const parseLine = line => {
+    const res = []; let cur = ''; let q = false;
+    for (const ch of line) {
+      if (ch === '"') { q = !q; continue; }
+      if (ch === delim && !q) { res.push(cur.trim()); cur = ''; continue; }
+      cur += ch;
+    }
+    res.push(cur.trim());
+    return res.map(c => c.replace(/^"|"$/g, ''));
+  };
+  const columns = parseLine(lines[0]);
+  const rows = [];
+  for (let i = 1; i < lines.length && rows.length < maxRows; i++) {
+    const cells = parseLine(lines[i]);
+    if (cells.some(c => c)) rows.push(cells);
+  }
+  return { columns, rows, rowCount: Math.max(0, lines.length - 1) };
+}
+
+function parseExcel(file, cb) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const wb = XLSX.read(e.target.result, { type: 'array' });
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const data = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+    const nonEmpty = data.filter(r => r.some(c => String(c).trim()));
+    if (!nonEmpty.length) { cb({ columns: [], rows: [], rowCount: 0 }); return; }
+
+    const headerRow = nonEmpty[0].map(c => String(c).trim());
+    const colIndexes = headerRow.map((h, i) => h ? { name: h, index: i } : null).filter(Boolean);
+    const columns = colIndexes.map(c => c.name);
+    const rows = nonEmpty.slice(1, 16).map(row =>
+      colIndexes.map(c => (row[c.index] != null && row[c.index] !== '') ? String(row[c.index]) : '')
+    );
+    cb({ columns, rows, rowCount: Math.max(0, nonEmpty.length - 1) });
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function suggestField(columns, field) {
+  let best = { column: '', confidence: 0 };
+  for (const col of columns) {
+    const name = String(col).trim();
+    let score = 0;
+    for (const r of field.rules) if (r.test(name)) score = Math.max(score, 95);
+    if (score > best.confidence) best = { column: col, confidence: score };
+  }
+  return best;
+}
+
+function detectTimestampFormat(values) {
+  const samples = values.map(v => String(v).trim()).filter(Boolean).slice(0, 8);
+  if (!samples.length) return { format: '', sample: '' };
+  if (samples.every(s => /^\d{10}$/.test(s))) return { format: 'timestamp', sample: samples[0] };
+  if (samples.every(s => /^\d+(\.\d+)?$/.test(s) && parseFloat(s) > 40000))
+    return { format: 'excel_serial', sample: samples[0], note: 'Excelシリアル値（例: 46023.35…）' };
+  const patterns = [
+    [/^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}:\d{2}$/, '%Y/%m/%d %H:%M:%S'],
+    [/^\d{4}\/\d{2}\/\d{2} \d{2}:\d{2}$/, '%Y/%m/%d %H:%M'],
+    [/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/, '%Y-%m-%d %H:%M'],
+    [/^\d{4}-\d{2}-\d{2}$/, '%Y-%m-%d'],
+  ];
+  for (const [re, fmt] of patterns) {
+    const m = samples.filter(s => re.test(s));
+    if (m.length >= samples.length * 0.6) return { format: fmt, sample: m[0] };
+  }
+  return { format: '', sample: samples[0] };
+}
+
+function runMappingSuggestion() {
+  const m = getMethod();
+  const att = fileData.attendance;
+  mappingResult = { method: m.id, fields: {} };
+  if (!att) { renderMappingUI(); return; }
+
+  for (const field of m.fields) {
+    if (field.setting) continue;
+    const sug = suggestField(att.columns, field);
+    mappingResult.fields[field.key] = { column: sug.column };
+  }
+
+  const fmtField = m.fields.find(f => f.key === 'timestamp_format');
+  const tsCol = mappingResult.fields.column_timestamp?.column;
+  if (fmtField && tsCol) {
+    const idx = att.columns.indexOf(tsCol);
+    const vals = att.rows.map(r => r[idx]);
+    let fmt = detectTimestampFormat(vals);
+    if (!fmt.format && fmtField.defaultFormat) fmt = { format: fmtField.defaultFormat, sample: vals[0] };
+    mappingResult.fields.timestamp_format = { value: fmt.format, sample: fmt.sample, note: fmt.note };
+  } else if (fmtField?.defaultFormat) {
+    mappingResult.fields.timestamp_format = { value: fmtField.defaultFormat, sample: '' };
+  }
+
+  for (const field of m.fields) {
+    if (field.setting && field.defaultValue && field.key !== 'timestamp_format') {
+      const col = mappingResult.fields.column_enter_exit?.column;
+      let val = field.defaultValue;
+      if (col && att.rows.length) {
+        const idx = att.columns.indexOf(col);
+        const uniq = [...new Set(att.rows.map(r => r[idx]).filter(Boolean))];
+        if (field.key === 'enter_values') val = uniq.find(v => /入|enter/i.test(String(v))) || val;
+        if (field.key === 'exit_values') val = uniq.find(v => /退|exit/i.test(String(v))) || val;
+      }
+      mappingResult.fields[field.key] = { value: val };
+    }
+  }
+  renderMappingUI();
+}
+
+function loadSampleAttendance(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  const m = getMethod();
+  fetch(m.samplePath)
+    .then(r => r.blob())
+    .then(blob => {
+      const file = new File([blob], m.sampleName, { type: blob.type || 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      handleFile('attendance', file);
+    })
+    .catch(() => alert('サンプルファイルを読み込めませんでした。同フォルダから手動でアップロードしてください。'));
+}
+
+function handleFile(type, file) {
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const done = parsed => {
+    fileData[type] = { file, name: file.name, ...parsed };
+    document.getElementById('zone-' + type).classList.add('has-file');
+    document.getElementById('file-' + type).textContent = `✅ ${file.name}（${parsed.rowCount}行・列: ${parsed.columns.join(', ') || '—'}）`;
+    if (type === 'attendance') runMappingSuggestion();
+    updateValidateBanner();
+  };
+  if (ext === 'csv') {
+    const reader = new FileReader();
+    reader.onload = e => done(parseCSV(e.target.result));
+    reader.readAsText(file, 'UTF-8');
+  } else if (ext === 'xlsx' || ext === 'xls') {
+    parseExcel(file, done);
+  } else {
+    alert('未対応の形式です');
+  }
+}
+
+function updateValidateBanner() {
+  const vr = document.getElementById('validate-result');
+  const emp = fileData.employee;
+  const att = fileData.attendance;
+  if (!emp && !att) { vr.classList.add('hidden'); return; }
+  vr.classList.remove('hidden');
+  let html = '';
+  if (emp) html += `従業員: <strong>${emp.rowCount}行</strong> [${emp.columns.join(', ')}]<br>`;
+  if (att) html += `出社滞在: <strong>${att.rowCount}行</strong> [${att.columns.join(', ')}]`;
+  document.getElementById('validate-text').innerHTML = html;
+}
+
+function buildColumnSelect(id, columns, selected) {
+  const opts = ['<option value="">CSVのカラムリスト</option>']
+    .concat(columns.map(c => `<option value="${esc(c)}" ${c === selected ? 'selected' : ''}>${esc(c)}</option>`));
+  return `<select id="${id}" onchange="onMappingChange('${id}')">${opts.join('')}</select>`;
+}
+
+function renderMappingUI() {
+  const m = getMethod();
+  const att = fileData.attendance;
+
+  if (m.meraki) {
+    document.getElementById('suggest-summary').textContent = 'Meraki自動収集のため、ファイルマッピングは不要です。';
+    document.getElementById('mapping-source').innerHTML = '';
+    document.getElementById('mapping-tbody').innerHTML = '<tr><td colspan="3" style="color:var(--muted);padding:16px">ファイル不要 — 次のステップへ</td></tr>';
+    document.getElementById('format-help-text').textContent = '—';
+    return;
+  }
+
+  if (!att) {
+    document.getElementById('suggest-summary').textContent = 'ステップ2で出社滞在ファイルを選択してください。';
+    document.getElementById('mapping-source').innerHTML = '対象ファイル: <strong>—</strong>';
+    document.getElementById('mapping-tbody').innerHTML = '<tr><td colspan="3" style="color:var(--muted);padding:16px">—</td></tr>';
+    return;
+  }
+
+  document.getElementById('mapping-source').innerHTML =
+    `対象ファイル: <strong>${esc(att.name)}</strong>　検出した列: <strong>${att.columns.map(esc).join(', ')}</strong>`;
+
+  const uid = mappingResult.fields.column_userId?.column || '';
+  const ts = mappingResult.fields.column_timestamp?.column || '';
+  document.getElementById('suggest-summary').innerHTML =
+    `提案: <strong>ユーザーID → ${esc(uid || '（未選択）')}</strong>、<strong>Timestamp → ${esc(ts || '（未選択）')}</strong>。違う場合はプルダウンで変更してください。`;
+
+  let rows = '';
+  for (const field of m.fields) {
+    if (field.key === 'timestamp_format') continue;
+    const res = mappingResult.fields[field.key] || {};
+    if (field.setting) {
+      rows += `<tr>
+        <td><strong>${esc(field.label)}</strong></td>
+        <td>—</td>
+        <td><input id="map-${field.key}" value="${esc(res.value || '')}" placeholder="${esc(field.defaultValue || '')}" oninput="onMappingChange('map-${field.key}')"></td>
+      </tr>`;
+    } else {
+      const selected = res.column || '';
+      const settingCell = field.key === 'column_timestamp'
+        ? `<input id="map-timestamp_format" value="${esc(mappingResult.fields.timestamp_format?.value || '')}" placeholder="excel_serial または %Y/%m/%d %H:%M" oninput="onMappingChange('map-timestamp_format')">`
+        : '—';
+      rows += `<tr>
+        <td><strong>${esc(field.label)}</strong></td>
+        <td>${buildColumnSelect('map-' + field.key, att.columns, selected)}</td>
+        <td>${settingCell}</td>
+      </tr>`;
+    }
+  }
+
+  document.getElementById('mapping-tbody').innerHTML = rows;
+
+  const fmt = mappingResult.fields.timestamp_format;
+  const fmtHelp = fmt?.note
+    ? `${fmt.note}。settingに <code>excel_serial</code> を入力。サンプル値: <code>${esc(fmt.sample || '')}</code>`
+    : fmt?.sample
+      ? `データ例: <code>${esc(fmt.sample)}</code> → setting: <code>${esc(fmt?.value || '')}</code>`
+      : '例: <code>%Y/%m/%d %H:%M</code> または Unix秒の場合は <code>timestamp</code>、Excel日時の場合は <code>excel_serial</code>';
+  document.getElementById('format-help-text').innerHTML = fmtHelp;
+}
+
+function onMappingChange(changedId) {
+  const m = getMethod();
+  const att = fileData.attendance;
+  if (!att) return;
+
+  for (const field of m.fields) {
+    if (field.setting) {
+      const el = document.getElementById('map-' + field.key);
+      if (el) mappingResult.fields[field.key] = { ...mappingResult.fields[field.key], value: el.value };
+    } else {
+      const el = document.getElementById('map-' + field.key);
+      if (el) mappingResult.fields[field.key] = { ...mappingResult.fields[field.key], column: el.value };
+    }
+  }
+
+  const fmtEl = document.getElementById('map-timestamp_format');
+  if (fmtEl) mappingResult.fields.timestamp_format = { ...mappingResult.fields.timestamp_format, value: fmtEl.value };
+
+  // Re-detect format only when timestamp column changes (not when user edits format input)
+  if (changedId === 'map-column_timestamp') {
+    const tsCol = mappingResult.fields.column_timestamp?.column;
+    if (tsCol) {
+      const idx = att.columns.indexOf(tsCol);
+      const fmt = detectTimestampFormat(att.rows.map(r => r[idx]));
+      const def = m.fields.find(f => f.key === 'timestamp_format')?.defaultFormat;
+      mappingResult.fields.timestamp_format = {
+        value: fmt.format || def || '',
+        sample: fmt.sample,
+        note: fmt.note
+      };
+      const fmtEl = document.getElementById('map-timestamp_format');
+      if (fmtEl) fmtEl.value = mappingResult.fields.timestamp_format.value;
+      const fmtHelp = fmt.note
+        ? `${fmt.note}。settingに <code>excel_serial</code> を入力。サンプル値: <code>${esc(fmt.sample || '')}</code>`
+        : fmt.sample
+          ? `データ例: <code>${esc(fmt.sample)}</code> → setting: <code>${esc(mappingResult.fields.timestamp_format.value || '')}</code>`
+          : document.getElementById('format-help-text').innerHTML;
+      if (typeof fmtHelp === 'string') document.getElementById('format-help-text').innerHTML = fmtHelp;
+    }
+  }
+
+  // Update summary text only — do not rebuild selects (preserve user edits)
+  const uid = mappingResult.fields.column_userId?.column || '';
+  const ts = mappingResult.fields.column_timestamp?.column || '';
+  document.getElementById('suggest-summary').innerHTML =
+    `提案: <strong>ユーザーID → ${esc(uid || '（未選択）')}</strong>、<strong>Timestamp → ${esc(ts || '（未選択）')}</strong>。違う場合はプルダウンで変更してください。`;
+}
+
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
+function openWizard() { document.getElementById('overlay').classList.remove('hidden'); document.getElementById('landing').style.display='none'; }
+function closeWizard() { document.getElementById('overlay').classList.add('hidden'); document.getElementById('landing').style.display='block'; }
+function copyText(t) { navigator.clipboard?.writeText(t); alert('コピーしました: ' + t); }
+
+function updateUI() {
+  document.querySelectorAll('.step-panel').forEach((p,i) => p.classList.toggle('active', i === currentStep));
+  document.querySelectorAll('.step-dot').forEach((d,i) => {
+    d.classList.remove('active','done');
+    if (i === currentStep) d.classList.add('active');
+    else if (i < currentStep) d.classList.add('done');
+  });
+  const pct = Math.round((currentStep+1)/5*100);
+  document.getElementById('progress-fill').style.width = pct+'%';
+  document.getElementById('progress-label').textContent = `ステップ ${currentStep+1} / 5`;
+  document.getElementById('progress-pct').textContent = pct+'%';
+  document.getElementById('btn-back').disabled = currentStep === 0;
+  document.getElementById('btn-next').textContent = currentStep === 4 ? '✓ 保存して分析開始' : '次へ →';
+  if (currentStep === 2) renderMappingUI();
+  if (currentStep === 4) buildReview();
+}
+
+function buildReview() {
+  const m = getMethod();
+  const days = [...document.querySelectorAll('#weekdays input:checked')].map(c=>c.value).join('・');
+  const items = [
+    ['データソース', m.name],
+    ['API method', m.apiMethod],
+  ];
+  if (!m.meraki) {
+    items.push(['従業員', fileData.employee ? `✅ ${fileData.employee.name}` : '⚠️ 未']);
+    items.push(['出社滞在', fileData.attendance ? `✅ ${fileData.attendance.name}` : '⚠️ 未']);
+    const uid = mappingResult.fields.column_userId?.column || '—';
+    const ts = mappingResult.fields.column_timestamp?.column || '—';
+    const fmt = mappingResult.fields.timestamp_format?.value || '—';
+    items.push(['カラム', `userId→${uid}, timestamp→${ts}, format→${fmt}`]);
+    if (m.mappingType === 'accessLog') {
+      items.push(['入退室', `ゲート→${mappingResult.fields.column_target_gates?.column||'—'}, フラグ→${mappingResult.fields.column_enter_exit?.column||'—'}`]);
+    }
+  } else {
+    items.push(['Meraki Validation', document.getElementById('meraki-validation').value || '（未入力）']);
+  }
+  items.push(['集計曜日', days]);
+  document.getElementById('review-grid').innerHTML = items.map(([k,v]) =>
+    `<div class="review-item"><div class="key">${k}</div><div class="val">${esc(v)}</div></div>`).join('');
+}
+
+function nextStep() {
+  const m = getMethod();
+  if (currentStep === 1 && !m.meraki && !fileData.attendance) { alert('出社滞在ファイルをアップロードしてください'); return; }
+  if (currentStep === 2 && !m.meraki) {
+    if (!mappingResult.fields.column_userId?.column || !mappingResult.fields.column_timestamp?.column || !mappingResult.fields.timestamp_format?.value) {
+      alert('マッピングを確認してください（ユーザーID・Timestamp列・形式）'); return;
+    }
+  }
+  if (currentStep < 4) { currentStep++; updateUI(); }
+  else {
+    alert('✅ セットアップ完了（モック）\n\nPOST /operation-analysis/setup\n• method: '+m.apiMethod+'\n• input-setting（マッピング）\n• target-dates-slots\n• S3アップロード → Glue');
+    closeWizard();
+  }
+}
+function prevStep() { if (currentStep > 0) { currentStep--; updateUI(); } }
+
+init();
+</script>
+</body>
+</html>

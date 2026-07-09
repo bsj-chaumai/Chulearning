@@ -1,0 +1,24 @@
+# Git ignore for AI-Driven Estimation Kit workspace
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Generated / local
+*.log
+.cache/
+
+# Optional: keep Archive.zip out of future commits if re-uploaded
+# Archive.zip
+
+# Private customer materials (Rule 10)
+private/

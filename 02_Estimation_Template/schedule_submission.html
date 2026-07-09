@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>概算スケジュール（提出用）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --primary:#0066FF; --deep:#3366FF; --sky:#3F9CFF; --navy:#253A58;
+    --ink:#090A0A; --ink-strong:#161717; --muted:#6C7072;
+    --soft:#E5F0FF; --hairline:#E3E5E5; --subtle:#F7F9FA; --hl:#FFF6CC;
+    --surface:#FFFFFF;
+    --sans:"Noto Sans JP",system-ui,sans-serif; --mono:"Roboto Mono",monospace;
+    /* 工程カラー＝ブランド青の濃淡＋navy＋ニュートラル（広い色は使わない） */
+    --c-req:#9FC6F2; --c-design:#6FA8EE; --c-arch:#4E93EC; --c-dev:#0066FF;
+    --c-test:#3366FF; --c-sec:#1F4FB0; --c-rel:#253A58; --c-maint:#B4B2A9;
+  }
+  *{box-sizing:border-box}
+  body{font-family:var(--sans);color:var(--ink);background:var(--subtle);margin:0;line-height:1.6;font-size:13px}
+  body::before{content:"";position:fixed;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,var(--primary),#3F9CFF);z-index:10}
+  .sheet{max-width:1040px;margin:22px auto;background:var(--surface);padding:34px 36px 36px;border:1px solid var(--hairline)}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  .head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid var(--primary);padding-bottom:13px;margin-bottom:16px}
+  .logo{height:25px;display:block;margin-bottom:11px}
+  h1{font-size:24px;font-weight:700;margin:0;letter-spacing:.06em}
+  .subtitle{font-size:13px;color:var(--muted);margin:6px 0 0}
+  .subtitle small{display:block;font-size:11.5px;margin-top:2px}
+  .conf{display:inline-block;background:var(--navy);color:#fff;font-size:10.5px;font-weight:700;letter-spacing:.12em;padding:3px 11px;border-radius:4px}
+  h2{font-size:13px;font-weight:700;margin:6px 0 9px;padding-left:9px;border-left:4px solid var(--primary)}
+  .scroll{overflow-x:auto}
+  table.gantt{width:100%;border-collapse:collapse;font-size:11px;min-width:940px}
+  table.gantt th,table.gantt td{border:1px solid var(--hairline);padding:4px 6px;vertical-align:middle}
+  table.gantt thead th{background:var(--primary);color:#fff;font-weight:500;text-align:center;border-color:#2f7bf0}
+  .cNo{width:26px;text-align:center} .cTask{width:208px} .cWho{width:40px;text-align:center}
+  .cD{width:46px;text-align:center;font-family:var(--mono)} .cN{width:40px;text-align:center;font-family:var(--mono)}
+  /* gantt header (months + weeks) live inside the last column */
+  th.cBar{padding:0;width:auto}
+  .mrow{display:grid;grid-template-columns:repeat(5,1fr)}
+  .mrow div{border-left:1px solid #2f7bf0;padding:3px 0;font-size:10.5px}
+  .mrow div:first-child{border-left:none}
+  .wrow{display:grid;grid-template-columns:repeat(20,1fr);background:var(--ink-strong)}
+  .wrow div{border-left:1px solid #34393f;padding:2px 0;font-size:9px;color:#cfd3d8}
+  .wrow div:first-child{border-left:none}
+  /* gantt body track */
+  td.track{padding:0;position:relative;height:24px;background:
+    repeating-linear-gradient(90deg,transparent,transparent calc(5% - 1px),var(--hairline) calc(5% - 1px),var(--hairline) 5%);}
+  td.track.month{background:
+    repeating-linear-gradient(90deg,transparent,transparent calc(5% - 1px),var(--hairline) calc(5% - 1px),var(--hairline) 5%),
+    repeating-linear-gradient(90deg,transparent,transparent calc(20% - 1px),#c9cdd2 calc(20% - 1px),#c9cdd2 20%);}
+  .bar{position:absolute;top:50%;transform:translateY(-50%);height:12px;border-radius:3px}
+  tr.grp td{background:var(--subtle);font-weight:700}
+  tr.grp .bar{height:14px;opacity:.95}
+  tr.ms td{background:var(--hl)}
+  tr.ms .cTask{font-weight:700}
+  .diamond{position:absolute;top:50%;transform:translate(-50%,-50%) rotate(45deg);width:11px;height:11px;background:var(--navy)}
+  /* legend + notes */
+  .legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin:10px 2px 0;font-size:11px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:5px}
+  .legend i{width:14px;height:10px;border-radius:2px;display:inline-block}
+  .legend .dia{width:10px;height:10px;background:var(--navy);transform:rotate(45deg)}
+  .notes{margin-top:14px;font-size:11px;color:var(--muted)} .notes li{margin:3px 0}
+  footer{margin-top:22px;padding-top:12px;border-top:1px solid var(--hairline);font-size:11px;color:var(--muted);text-align:center}
+  @media print{body{background:#fff}.sheet{border:none;margin:0;max-width:none;padding:0}body::before{position:static}.scroll{overflow:visible}table.gantt{min-width:0}}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="head">
+    <div>
+      <img class="logo" src="../assets/bravesoft-logo.png" alt="bravesoft">
+      <h1>概算 スケジュール</h1>
+      <p class="subtitle">会員アプリ（iOS / Android）MVP 開発
+        <small>8月着手 〜 11月リリース ／ 12月以降 保守対応　※工程が一部重なるアジャイル想定の進行イメージ</small>
+      </p>
+    </div>
+    <span class="conf">CONFIDENTIAL</span>
+  </div>
+
+  <h2>月別スケジュール概要</h2>
+  <div class="scroll">
+  <table class="gantt">
+    <thead>
+      <tr>
+        <th class="cNo" rowspan="2">No.</th>
+        <th class="cTask" rowspan="2">工程</th>
+        <th class="cWho" rowspan="2">担当</th>
+        <th class="cD" rowspan="2">Start</th>
+        <th class="cD" rowspan="2">Due</th>
+        <th class="cN" rowspan="2">日数</th>
+        <th class="cBar">
+          <div class="mrow"><div>2026年8月</div><div>9月</div><div>10月</div><div>11月</div><div>12月</div></div>
+        </th>
+      </tr>
+      <tr>
+        <th class="cBar" style="padding:0">
+          <div class="wrow">
+            <div>1w</div><div>2w</div><div>3w</div><div>4w</div><div>1w</div><div>2w</div><div>3w</div><div>4w</div>
+            <div>1w</div><div>2w</div><div>3w</div><div>4w</div><div>1w</div><div>2w</div><div>3w</div><div>4w</div>
+            <div>1w</div><div>2w</div><div>3w</div><div>4w</div>
+          </div>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- 1 要件定義 -->
+      <tr class="grp"><td class="cNo">1</td><td class="cTask">要件定義</td><td class="cWho"></td><td class="cD"></td><td class="cD"></td><td class="cN"></td><td class="track month"><span class="bar" style="left:0%;width:20%;background:var(--c-req)"></span></td></tr>
+      <tr><td class="cNo">1.1</td><td class="cTask">要件定義管理</td><td class="cWho">BS</td><td class="cD">8/1w</td><td class="cD">8/4w</td><td class="cN">3d</td><td class="track month"><span class="bar" style="left:0%;width:20%;background:var(--c-req)"></span></td></tr>
+      <tr><td class="cNo">1.2</td><td class="cTask">要件ヒアリング・要件定義書</td><td class="cWho">両社</td><td class="cD">8/1w</td><td class="cD">8/2w</td><td class="cN">8d</td><td class="track month"><span class="bar" style="left:0%;width:10%;background:var(--c-req)"></span></td></tr>
+      <!-- 2 デザイン -->
+      <tr class="grp"><td class="cNo">2</td><td class="cTask">デザイン</td><td class="cWho"></td><td class="cD"></td><td class="cD"></td><td class="cN"></td><td class="track month"><span class="bar" style="left:5%;width:15%;background:var(--c-design)"></span></td></tr>
+      <tr><td class="cNo">2.1</td><td class="cTask">アプリデザイン（主要12画面）</td><td class="cWho">BS</td><td class="cD">8/2w</td><td class="cD">8/4w</td><td class="cN">20d</td><td class="track month"><span class="bar" style="left:5%;width:15%;background:var(--c-design)"></span></td></tr>
+      <!-- 3 設計 -->
+      <tr class="grp"><td class="cNo">3</td><td class="cTask">設計</td><td class="cWho"></td><td class="cD"></td><td class="cD"></td><td class="cN"></td><td class="track month"><span class="bar" style="left:15%;width:10%;background:var(--c-arch)"></span></td></tr>
+      <tr><td class="cNo">3.1</td><td class="cTask">画面仕様書・API/シーケンス設計</td><td class="cWho">BS</td><td class="cD">8/4w</td><td class="cD">9/1w</td><td class="cN">10d</td><td class="track month"><span class="bar" style="left:15%;width:10%;background:var(--c-arch)"></span></td></tr>
+      <tr class="ms"><td class="cNo">3.2</td><td class="cTask">◆ 要件・デザイン Fix</td><td class="cWho">両社</td><td class="cD">9/1w</td><td class="cD">9/1w</td><td class="cN">—</td><td class="track month"><span class="diamond" style="left:20%"></span></td></tr>
+      <!-- 4 開発 -->
+      <tr class="grp"><td class="cNo">4</td><td class="cTask">開発</td><td class="cWho"></td><td class="cD"></td><td class="cD"></td><td class="cN"></td><td class="track month"><span class="bar" style="left:20%;width:40%;background:var(--c-dev)"></span></td></tr>
+      <tr><td class="cNo">4.1</td><td class="cTask">認証・会員登録（OTP/SNS）</td><td class="cWho">BS</td><td class="cD">9/1w</td><td class="cD">9/3w</td><td class="cN">15d</td><td class="track month"><span class="bar" style="left:20%;width:15%;background:var(--c-dev)"></span></td></tr>
+      <tr><td class="cNo">4.2</td><td class="cTask">会員証・ポイント表示</td><td class="cWho">BS</td><td class="cD">9/3w</td><td class="cD">9/4w</td><td class="cN">12d</td><td class="track month"><span class="bar" style="left:30%;width:10%;background:var(--c-dev)"></span></td></tr>
+      <tr><td class="cNo">4.3</td><td class="cTask">会員API・ポイントAPI（6 EP）</td><td class="cWho">BS</td><td class="cD">9/2w</td><td class="cD">10/1w</td><td class="cN">18d</td><td class="track month"><span class="bar" style="left:25%;width:20%;background:var(--c-dev)"></span></td></tr>
+      <tr><td class="cNo">4.4</td><td class="cTask">CI/CD・基盤</td><td class="cWho">BS</td><td class="cD">9/1w</td><td class="cD">9/2w</td><td class="cN">8d</td><td class="track month"><span class="bar" style="left:20%;width:10%;background:var(--c-dev)"></span></td></tr>
+      <tr class="ms"><td class="cNo">4.5</td><td class="cTask">◆ 実装完了</td><td class="cWho">BS</td><td class="cD">10/3w</td><td class="cD">10/3w</td><td class="cN">—</td><td class="track month"><span class="diamond" style="left:60%"></span></td></tr>
+      <!-- 5 テスト -->
+      <tr class="grp"><td class="cNo">5</td><td class="cTask">テスト</td><td class="cWho"></td><td class="cD"></td><td class="cD"></td><td class="cN"></td><td class="track month"><span class="bar" style="left:50%;width:20%;background:var(--c-test)"></span></td></tr>
+      <tr><td class="cNo">5.1</td><td class="cTask">結合テスト・デバッグ</td><td class="cWho">BS</td><td class="cD">10/3w</td><td class="cD">11/1w</td><td class="cN">18d</td><td class="track month"><span class="bar" style="left:50%;width:15%;background:var(--c-test)"></span></td></tr>
+      <tr><td class="cNo">5.2</td><td class="cTask">受け入れテスト</td><td class="cWho">貴社</td><td class="cD">11/2w</td><td class="cD">11/2w</td><td class="cN">—</td><td class="track month"><span class="bar" style="left:65%;width:5%;background:var(--c-test)"></span></td></tr>
+      <!-- 6 セキュリティ -->
+      <tr class="grp"><td class="cNo">6</td><td class="cTask">セキュリティ</td><td class="cWho"></td><td class="cD"></td><td class="cD"></td><td class="cN"></td><td class="track month"><span class="bar" style="left:65%;width:10%;background:var(--c-sec)"></span></td></tr>
+      <tr><td class="cNo">6.1</td><td class="cTask">脆弱性診断・対応</td><td class="cWho">BS</td><td class="cD">11/2w</td><td class="cD">11/3w</td><td class="cN">5d</td><td class="track month"><span class="bar" style="left:65%;width:10%;background:var(--c-sec)"></span></td></tr>
+      <!-- 7 リリース -->
+      <tr class="grp"><td class="cNo">7</td><td class="cTask">リリース</td><td class="cWho"></td><td class="cD"></td><td class="cD"></td><td class="cN"></td><td class="track month"><span class="bar" style="left:70%;width:10%;background:var(--c-rel)"></span></td></tr>
+      <tr><td class="cNo">7.1</td><td class="cTask">ストア申請・審査待ち</td><td class="cWho">BS</td><td class="cD">11/3w</td><td class="cD">11/3w</td><td class="cN">—</td><td class="track month"><span class="bar" style="left:70%;width:5%;background:var(--c-rel)"></span></td></tr>
+      <tr><td class="cNo">7.2</td><td class="cTask">リリース（本番公開）</td><td class="cWho">BS</td><td class="cD">11/4w</td><td class="cD">11/4w</td><td class="cN">3d</td><td class="track month"><span class="bar" style="left:75%;width:5%;background:var(--c-rel)"></span></td></tr>
+      <tr class="ms"><td class="cNo">7.3</td><td class="cTask">◆ リリース</td><td class="cWho">両社</td><td class="cD">11/4w</td><td class="cD">11/4w</td><td class="cN">—</td><td class="track month"><span class="diamond" style="left:80%"></span></td></tr>
+      <!-- 8 保守 -->
+      <tr class="grp"><td class="cNo">8</td><td class="cTask">保守（12月以降・別途）</td><td class="cWho"></td><td class="cD"></td><td class="cD"></td><td class="cN"></td><td class="track month"><span class="bar" style="left:80%;width:20%;background:var(--c-maint)"></span></td></tr>
+      <tr><td class="cNo">8.1</td><td class="cTask">保守・追加改修（別途契約）</td><td class="cWho">別途</td><td class="cD">12/1w</td><td class="cD">—</td><td class="cN">別途</td><td class="track month"><span class="bar" style="left:80%;width:20%;background:var(--c-maint)"></span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="legend">
+    <span><i style="background:var(--c-req)"></i>要件定義</span>
+    <span><i style="background:var(--c-design)"></i>デザイン</span>
+    <span><i style="background:var(--c-arch)"></i>設計</span>
+    <span><i style="background:var(--c-dev)"></i>開発</span>
+    <span><i style="background:var(--c-test)"></i>テスト</span>
+    <span><i style="background:var(--c-sec)"></i>セキュリティ</span>
+    <span><i style="background:var(--c-rel)"></i>リリース</span>
+    <span><i style="background:var(--c-maint)"></i>保守(別途)</span>
+    <span><i class="dia"></i>◆ マイルストーン</span>
+  </div>
+
+  <ul class="notes">
+    <li>※ 担当：BS＝bravesoft ／ 両社＝貴社・BS 共同 ／ 貴社・別途＝記載のとおり。</li>
+    <li>※ 工程が一部重なりながら進行するアジャイル想定の進行イメージです。キックオフ後に詳細を確定します。</li>
+    <li>※ マイルストーン：◆要件・デザイン Fix（9月1w）／◆実装完了（10月3w）／◆リリース（11月4w）。</li>
+    <li>※ 12月以降は保守フェーズ（別途契約）。本見積の対象外項目はこの期間で対応する想定です。</li>
+    <li>※ 本スケジュールは概算です。要件・体制の確定により前後する場合があります。</li>
+  </ul>
+
+  <footer>© 2026 bravesoft Inc. All rights reserved.</footer>
+</div>
+</body>
+</html>
