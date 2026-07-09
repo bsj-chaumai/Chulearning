@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WDP — Đề xuất cải tiến hệ thống / システム改善提案</title>
+  <style>
+    :root {
+      --navy: #1e4d8c;
+      --navy-soft: #e8f0fa;
+      --accent: #f5a623;
+      --ink: #1a2332;
+      --muted: #6b7c93;
+      --line: #dde3ec;
+      --bg: #f4f6f9;
+      --card: #ffffff;
+      --ok: #2d8a4e;
+      --warn: #b45309;
+      --danger: #c0392b;
+      --ai1: #2563eb;
+      --ai2: #7c3aed;
+      --ai3: #db2777;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Hiragino Sans", "Noto Sans JP", "Segoe UI", "Meiryo", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(900px 420px at 0% -10%, #dbeafe 0%, transparent 55%),
+        radial-gradient(700px 360px at 100% 0%, #fef3c7 0%, transparent 50%),
+        var(--bg);
+      line-height: 1.65;
+    }
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; flex-wrap: wrap; gap: 10px;
+      align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+      background: rgba(255,255,255,.96);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+    .brand { font-weight: 800; color: var(--navy); font-size: 14px; letter-spacing: .02em; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .actions button, .actions a {
+      border: 1px solid var(--line); background: #fff; border-radius: 8px;
+      padding: 8px 12px; font-size: 13px; font-weight: 650; cursor: pointer;
+      text-decoration: none; color: inherit;
+    }
+    .actions button.active { background: var(--navy); color: #fff; border-color: var(--navy); }
+
+    .wrap { max-width: 920px; margin: 0 auto; padding: 28px 20px 80px; }
+
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 28px 26px;
+      box-shadow: 0 12px 32px rgba(30,77,140,.07);
+      margin-bottom: 20px;
+    }
+    .eyebrow {
+      display: inline-block; font-size: 11px; font-weight: 800;
+      color: var(--navy); background: var(--navy-soft);
+      padding: 4px 10px; border-radius: 999px; letter-spacing: .04em;
+    }
+    h1 {
+      font-size: clamp(1.5rem, 2.6vw, 2rem);
+      margin: 12px 0 10px; line-height: 1.3;
+    }
+    .lead { margin: 0; color: var(--muted); font-size: 15px; }
+    .hero-goals {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px;
+    }
+    @media (max-width: 700px) { .hero-goals { grid-template-columns: 1fr; } }
+    .goal {
+      border: 1px solid var(--line); border-radius: 12px; padding: 14px;
+      background: linear-gradient(180deg, #fff, #f8fafc);
+    }
+    .goal b { display: block; color: var(--navy); margin-bottom: 4px; font-size: 13px; }
+    .goal span { font-size: 13.5px; color: var(--ink); }
+
+    .toc {
+      background: #fff; border: 1px solid var(--line); border-radius: 14px;
+      padding: 14px 18px; margin-bottom: 8px;
+    }
+    .toc strong { color: var(--navy); }
+    .toc ol { margin: 8px 0 0; padding-left: 20px; }
+    .toc a { color: var(--navy); text-decoration: none; }
+    .toc li { margin: 5px 0; }
+
+    h2 {
+      font-size: 1.25rem; margin: 36px 0 12px; padding-bottom: 8px;
+      border-bottom: 3px solid var(--navy-soft); color: var(--navy);
+    }
+    h3 { font-size: 1.05rem; margin: 22px 0 10px; }
+    h4 { font-size: .95rem; margin: 14px 0 6px; color: var(--navy); }
+
+    .card {
+      background: var(--card); border: 1px solid var(--line);
+      border-radius: 14px; padding: 16px 18px; margin: 12px 0;
+    }
+    .pain-grid {
+      display: grid; grid-template-columns: 1fr; gap: 12px;
+    }
+    .pain {
+      border-left: 4px solid var(--danger);
+      background: #fff; border: 1px solid var(--line);
+      border-left-width: 4px; border-radius: 0 12px 12px 0;
+      padding: 14px 16px;
+    }
+    .pain.biz { border-left-color: var(--warn); }
+    .pain.org { border-left-color: #7c3aed; }
+    .pain .label {
+      font-size: 12px; font-weight: 800; letter-spacing: .03em;
+      margin-bottom: 8px; color: var(--muted);
+    }
+    .pain ul { margin: 0; padding-left: 18px; }
+    .pain li { margin: 6px 0; font-size: 14px; }
+    .pain li strong { color: var(--ink); }
+
+    .phase {
+      background: #fff; border: 1px solid var(--line); border-radius: 16px;
+      padding: 18px; margin: 14px 0; overflow: hidden;
+    }
+    .phase-head {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      margin-bottom: 12px;
+    }
+    .phase-num {
+      background: var(--navy); color: #fff; font-weight: 800;
+      font-size: 12px; padding: 5px 10px; border-radius: 999px;
+    }
+    .phase-title { font-size: 1.05rem; font-weight: 800; margin: 0; color: var(--ink); }
+    .phase-scope {
+      font-size: 12px; color: var(--muted); width: 100%; margin-top: 2px;
+    }
+    .as-is {
+      background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px;
+      padding: 12px 14px; font-size: 14px; margin-bottom: 12px;
+    }
+    .to-be {
+      background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 10px;
+      padding: 12px 14px; font-size: 14px;
+    }
+    .as-is .t, .to-be .t { font-weight: 800; font-size: 12px; margin-bottom: 6px; }
+    .as-is .t { color: var(--danger); }
+    .to-be .t { color: var(--ok); }
+    .to-be ul { margin: 6px 0 0; padding-left: 18px; }
+    .to-be li { margin: 5px 0; }
+
+    .ai-levels {
+      display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 12px;
+    }
+    .ai {
+      border: 1px solid var(--line); border-radius: 14px; padding: 16px;
+      background: #fff; position: relative;
+    }
+    .ai.l1 { border-top: 4px solid var(--ai1); }
+    .ai.l2 { border-top: 4px solid var(--ai2); }
+    .ai.l3 { border-top: 4px solid var(--ai3); }
+    .ai .lvl {
+      display: inline-block; font-size: 11px; font-weight: 800;
+      padding: 3px 8px; border-radius: 999px; margin-bottom: 8px;
+    }
+    .ai.l1 .lvl { background: #dbeafe; color: var(--ai1); }
+    .ai.l2 .lvl { background: #ede9fe; color: var(--ai2); }
+    .ai.l3 .lvl { background: #fce7f3; color: var(--ai3); }
+    .ai h4 { margin: 0 0 6px; font-size: 1rem; }
+    .ai p { margin: 0; font-size: 14px; color: var(--ink); }
+
+    .mock-box {
+      margin-top: 14px; border: 1px solid var(--line); border-radius: 14px;
+      overflow: hidden; background: #fff;
+    }
+    .mock-box .cap {
+      padding: 10px 14px; background: var(--navy-soft); font-size: 13px; font-weight: 700; color: var(--navy);
+      display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; align-items: center;
+    }
+    .mock-box iframe { width: 100%; height: 720px; border: 0; display: block; background: #f8fafc; }
+
+    .flow {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0 4px;
+    }
+    .flow .s {
+      background: var(--navy-soft); color: var(--navy); border-radius: 8px;
+      padding: 8px 10px; font-size: 12px; font-weight: 700;
+    }
+    .flow .a { color: var(--muted); font-weight: 700; }
+
+    .lang-block { display: none; }
+    .lang-block.show { display: block; }
+
+    footer {
+      margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--line);
+      color: var(--muted); font-size: 12px;
+    }
+    code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: .9em; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">WDP · System Improvement Proposal</div>
+    <div class="actions">
+      <button type="button" id="btn-vi" class="active" onclick="setLang('vi')">Tiếng Việt</button>
+      <button type="button" id="btn-ja" onclick="setLang('ja')">日本語</button>
+      <a href="./mockups/operation-setup-wizard-mockup.html" target="_blank" rel="noopener">Mockup GĐ1</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- ===================== VI ===================== -->
+    <div id="lang-vi" class="lang-block show">
+      <section class="hero">
+        <span class="eyebrow">WORKPLACE DATA PLATFORM (WDP)</span>
+        <h1>Đề xuất cải tiến hệ thống</h1>
+        <p class="lead">Chuyển WDP từ công cụ hiển thị biểu đồ tĩnh thành <strong>Hệ thống SaaS AI-driven thông minh</strong> — tối ưu UX cho khách hàng, tạo USP cạnh tranh và nâng năng suất tư vấn (XD).</p>
+        <div class="hero-goals">
+          <div class="goal">
+            <b>Với Khách hàng (Tenant Admin)</b>
+            <span>Tối ưu UX, trực quan hóa quy trình xử lý (Flow), giảm tối đa thao tác thủ công.</span>
+          </div>
+          <div class="goal">
+            <b>Với Kinh doanh Vis</b>
+            <span>Tạo tính năng mũi nhọn (USP), thúc đẩy CVR bản SaaS, nâng năng suất đội ngũ tư vấn (XD).</span>
+          </div>
+        </div>
+      </section>
+
+      <nav class="toc">
+        <strong>Mục lục</strong>
+        <ol>
+          <li><a href="#vi-1">1. Tầm nhìn &amp; Mục tiêu</a></li>
+          <li><a href="#vi-2">2. Các vấn đề hiện tại</a></li>
+          <li><a href="#vi-3">3. Giải pháp &amp; Định hướng cải tiến</a>
+            <ol style="margin-top:4px">
+              <li><a href="#vi-p1">Giai đoạn 1 — Tối ưu luồng nhập liệu</a></li>
+              <li><a href="#vi-p2">Giai đoạn 2 — Survey thông minh</a></li>
+              <li><a href="#vi-p3">Giai đoạn 3 — Output Analytics &amp; 3 mức AI</a></li>
+            </ol>
+          </li>
+        </ol>
+      </nav>
+
+      <h2 id="vi-1">1. Tầm nhìn chiến lược &amp; Mục tiêu</h2>
+      <div class="card">
+        <p style="margin:0">Định hướng: biến WDP thành nền tảng SaaS gắn AI — không chỉ “vẽ biểu đồ”, mà <strong>đọc hiểu dữ liệu, dẫn dắt hành động</strong>, đồng thời hạ rào cản thiết lập ban đầu để tăng chuyển đổi SaaS.</p>
+      </div>
+
+      <h2 id="vi-2">2. Các vấn đề hiện tại (Pain Points)</h2>
+      <div class="pain-grid">
+        <div class="pain">
+          <div class="label">2.1 · Sản phẩm &amp; Kỹ thuật</div>
+          <ul>
+            <li><strong>Gánh nặng thao tác thủ công:</strong> Khách hàng mất nhiều thời gian chỉnh format Excel/CSV trước khi upload dữ liệu nhân viên và lịch sử ra vào.</li>
+            <li><strong>Chỉ dừng ở hiển thị:</strong> WDP chủ yếu vẽ biểu đồ (xu hướng, tỷ lệ lên công ty, survey). Việc đọc hiểu / phân tích vẫn phụ thuộc con người.</li>
+            <li><strong>Nợ kỹ thuật:</strong> Nhiều vùng hard-code → rủi ro sai lệch dữ liệu, cản trở tích hợp AI nhanh.</li>
+          </ul>
+        </div>
+        <div class="pain biz">
+          <div class="label">2.2 · Thị trường &amp; Kinh doanh SaaS</div>
+          <ul>
+            <li><strong>Nhận diện thương hiệu chậm:</strong> Đi sau đối thủ HR-tech đã dùng AI phân tích chuyên sâu.</li>
+            <li><strong>Thiếu tính năng mũi nhọn:</strong> Sales chưa có “Wow-effect” để cạnh tranh.</li>
+            <li><strong>CVR thấp:</strong> Nhu cầu cao nhưng khách ngại mua SaaS vì thiết lập ban đầu quá phức tạp.</li>
+          </ul>
+        </div>
+        <div class="pain org">
+          <div class="label">2.3 · Vận hành &amp; Nhân sự nội bộ Vis</div>
+          <ul>
+            <li><strong>Quá tải tư vấn:</strong> Consultant tự nhìn biểu đồ rồi làm báo cáo thủ công → tốn thời gian, khó scale.</li>
+            <li><strong>Rào cản in-house:</strong> Muốn nội bộ hóa IT nhưng khó tự nghiên cứu AI nếu chỉ tuyển kỹ sư thông thường.</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 id="vi-3">3. Giải pháp &amp; Định hướng cải tiến (To-Be)</h2>
+
+      <!-- Phase 1 -->
+      <section class="phase" id="vi-p1">
+        <div class="phase-head">
+          <span class="phase-num">GIAI ĐOẠN 1</span>
+          <h3 class="phase-title">Tối ưu hóa luồng nhập liệu (Input &amp; Data Cleansing)</h3>
+          <div class="phase-scope">Áp dụng: Top Page · khu vực <code>稼働分析</code> · <code>空間分析</code></div>
+        </div>
+        <div class="as-is">
+          <div class="t">Thực trạng cũ</div>
+          Người dùng mất thời gian format Excel đầu vào (<code>出社滞在情報</code>, <code>従業員情報</code>). File sai format bị từ chối nhưng <strong>không có thông báo lỗi</strong> → ức chế, khó hiểu. Thao tác rời rạc, lặp lại.
+        </div>
+        <div class="to-be">
+          <div class="t">Giải pháp cải tiến</div>
+          <ul>
+            <li><strong>Hợp nhất quy trình (Step-by-step Popup):</strong> Gom upload vào một popup tập trung, hướng dẫn từng bước trực quan.</li>
+            <li><strong>Giao diện sửa lỗi trực tiếp (Error UI):</strong> Khi sai định dạng → hiện lỗi và đề xuất cách sửa.</li>
+          </ul>
+        </div>
+        <div class="flow">
+          <span class="s">1. Chọn nguồn</span><span class="a">→</span>
+          <span class="s">2. Upload / Meraki</span><span class="a">→</span>
+          <span class="s">3. Map cột</span><span class="a">→</span>
+          <span class="s">4. Điều kiện</span><span class="a">→</span>
+          <span class="s">5. Xác nhận</span>
+        </div>
+        <div class="mock-box">
+          <div class="cap">
+            <span>Mockup Giai đoạn 1 — Operation Setup Wizard (do dev tạo)</span>
+            <a href="./mockups/operation-setup-wizard-mockup.html" target="_blank" rel="noopener">Mở full-screen</a>
+          </div>
+          <iframe title="Operation Setup Wizard Mockup" src="./mockups/operation-setup-wizard-mockup.html" loading="lazy"></iframe>
+        </div>
+      </section>
+
+      <!-- Phase 2 -->
+      <section class="phase" id="vi-p2">
+        <div class="phase-head">
+          <span class="phase-num">GIAI ĐOẠN 2</span>
+          <h3 class="phase-title">Quản lý &amp; vận hành Survey thông minh</h3>
+        </div>
+        <div class="as-is">
+          <div class="t">Thực trạng cũ</div>
+          Thiết lập survey thủ công. Muốn biết ai chưa làm, Tenant Admin phải export CSV, lọc từng dòng trên Excel, rồi tự nhắc ngoài hệ thống.
+        </div>
+        <div class="to-be">
+          <div class="t">Giải pháp cải tiến</div>
+          <ul>
+            <li><strong>Dashboard trạng thái realtime:</strong> Biểu đồ tiến độ (Đã làm / Chưa làm) ngay trên Web — bỏ export CSV chỉ để check.</li>
+            <li><strong>Nhắc nhở tự động (Automation Queue):</strong> Auto-remind định kỳ hoặc nút “Nhắc nhanh 1-chạm” tới user chưa hoàn thành (luồng survey qua mail).</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Phase 3 -->
+      <section class="phase" id="vi-p3">
+        <div class="phase-head">
+          <span class="phase-num">GIAI ĐOẠN 3</span>
+          <h3 class="phase-title">Phân tích đầu ra (Output Analytics) &amp; 3 mức ứng dụng AI</h3>
+          <div class="phase-scope">Áp dụng: <code>稼働分析</code> · kết quả <code>サーベイ結果</code></div>
+        </div>
+        <div class="as-is">
+          <div class="t">Thực trạng cũ</div>
+          Hệ thống chỉ cung cấp biểu đồ tĩnh. User và Consultant vẫn tự nhìn, tự phân tích để đưa ra giải pháp không gian.
+        </div>
+        <p style="font-size:14px; color:var(--muted); margin:12px 0 0">Đề xuất <strong>3 mức độ AI</strong> để thảo luận / chọn hướng:</p>
+        <div class="ai-levels">
+          <div class="ai l1">
+            <span class="lvl">MỨC 1 — THẤP</span>
+            <h4>AI Insight Card</h4>
+            <p>Thẻ text phân tích + mini-chart ngay dưới mỗi biểu đồ hiện tại. Khách vẫn xem biểu đồ truyền thống, thêm AI “đọc hiểu” và viết nhận xét tự động.</p>
+          </div>
+          <div class="ai l2">
+            <span class="lvl">MỨC 2 — TRUNG BÌNH · Cross-domain</span>
+            <h4>Workplace Brief</h4>
+            <p>Dashboard tổng hợp liên kết Vận hành (Operation) + Survey + Không gian (Space). Hàng tháng AI xuất “Bản tin văn phòng”: Health Score, insight chéo, đề xuất hành động.</p>
+          </div>
+          <div class="ai l3">
+            <span class="lvl">MỨC 3 — CAO · Hỏi đáp dữ liệu</span>
+            <h4>AI Chat</h4>
+            <p>Chatbot dữ liệu (Text-to-SQL bảo mật). Hỏi bằng tiếng Nhật tự nhiên (vd. <em>「Tháng trước phòng nào đi làm trực tiếp ít nhất?」</em>) → AI lấy dữ liệu, trả lời kèm biểu đồ trong chat, giảm phụ thuộc Consultant.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ===================== JA ===================== -->
+    <div id="lang-ja" class="lang-block">
+      <section class="hero">
+        <span class="eyebrow">WORKPLACE DATA PLATFORM (WDP)</span>
+        <h1>システム改善提案</h1>
+        <p class="lead">WDPを静的なグラフ表示ツールから、<strong>AI駆動のスマートSaaS</strong>へ転換する提案です。顧客UXの最適化、競合に勝るUSP、コンサル（XD）生産性の向上を目指します。</p>
+        <div class="hero-goals">
+          <div class="goal">
+            <b>顧客（Tenant Admin）向け</b>
+            <span>UX最適化、処理フローの可視化、手作業の最小化。</span>
+          </div>
+          <div class="goal">
+            <b>Visの事業向け</b>
+            <span>尖った機能（USP）の創出、SaaSのCVR向上、コンサル（XD）の生産性向上。</span>
+          </div>
+        </div>
+      </section>
+
+      <nav class="toc">
+        <strong>目次</strong>
+        <ol>
+          <li><a href="#ja-1">1. ビジョンと目標</a></li>
+          <li><a href="#ja-2">2. 現状の課題</a></li>
+          <li><a href="#ja-3">3. 解決策と改善方針</a>
+            <ol style="margin-top:4px">
+              <li><a href="#ja-p1">フェーズ1 — 入力フロー最適化</a></li>
+              <li><a href="#ja-p2">フェーズ2 — スマートSurvey運用</a></li>
+              <li><a href="#ja-p3">フェーズ3 — 出力分析とAI 3段階</a></li>
+            </ol>
+          </li>
+        </ol>
+      </nav>
+
+      <h2 id="ja-1">1. 戦略ビジョンと目標</h2>
+      <div class="card">
+        <p style="margin:0">方針: WDPを「グラフを描くだけ」のツールから、<strong>データを読み解き行動を促す</strong>AI連携SaaSへ。初期セットアップの障壁を下げ、SaaS転換率も高める。</p>
+      </div>
+
+      <h2 id="ja-2">2. 現状の課題（Pain Points）</h2>
+      <div class="pain-grid">
+        <div class="pain">
+          <div class="label">2.1 · 製品・技術面</div>
+          <ul>
+            <li><strong>手作業の負担:</strong> 従業員・入退室データのExcel/CSV整形に顧客の時間がかかりすぎる。</li>
+            <li><strong>可視化止まり:</strong> 傾向・出社率・サーベイ結果などのグラフ表示が中心。解釈・分析は人依存。</li>
+            <li><strong>技術的負債:</strong> ハードコードが多く、データ誤差リスクとAI即時統合の障壁になっている。</li>
+          </ul>
+        </div>
+        <div class="pain biz">
+          <div class="label">2.2 · ビジネス・市場面（SaaS）</div>
+          <ul>
+            <li><strong>認知拡大の遅れ:</strong> AI深掘り分析を先に実装したHR-tech競合に後れをとっている。</li>
+            <li><strong>強みの不足:</strong> 営業が使える“Wow効果”の尖った機能がまだない。</li>
+            <li><strong>成約率の課題:</strong> 需要は高いが、初期設定の複雑さが有料SaaS購入のボトルネック。</li>
+          </ul>
+        </div>
+        <div class="pain org">
+          <div class="label">2.3 · 運用・組織面（Vis内部）</div>
+          <ul>
+            <li><strong>コンサル業務の高負荷:</strong> コンサルタントがWDPのグラフを見て手作業でレポート作成 → 時間がかかりスケールしにくい。</li>
+            <li><strong>内製化の技術の壁:</strong> IT内製を志向しても、通常採用だけではAI等の高度技術を競合水準で自走しにくい。</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 id="ja-3">3. 解決策と改善方針（To-Be）</h2>
+
+      <section class="phase" id="ja-p1">
+        <div class="phase-head">
+          <span class="phase-num">フェーズ 1</span>
+          <h3 class="phase-title">入力フロー最適化（Input &amp; Data Cleansing）</h3>
+          <div class="phase-scope">適用: Top Page · <code>稼働分析</code> · <code>空間分析</code></div>
+        </div>
+        <div class="as-is">
+          <div class="t">現状（As-Is）</div>
+          入力Excel（<code>出社滞在情報</code>・<code>従業員情報</code>）の整形に時間がかかる。形式不正時は処理拒否されるが<strong>エラー表示がない</strong>ため分かりにくい。操作も分散・反復的。
+        </div>
+        <div class="to-be">
+          <div class="t">改善策（To-Be）</div>
+          <ul>
+            <li><strong>工程統合（Step-by-step Popup）:</strong> アップロード一式を1つのポップアップに集約し、段階的に案内。</li>
+            <li><strong>直接修正UI（Error UI）:</strong> 形式エラー時にメッセージと修正提案を表示。</li>
+          </ul>
+        </div>
+        <div class="flow">
+          <span class="s">1. データソース</span><span class="a">→</span>
+          <span class="s">2. ファイル/Meraki</span><span class="a">→</span>
+          <span class="s">3. カラム設定</span><span class="a">→</span>
+          <span class="s">4. 集計条件</span><span class="a">→</span>
+          <span class="s">5. 確認</span>
+        </div>
+        <div class="mock-box">
+          <div class="cap">
+            <span>フェーズ1モック — Operation Setup Wizard（開発作成の原本）</span>
+            <a href="./mockups/operation-setup-wizard-mockup.html" target="_blank" rel="noopener">全画面で開く</a>
+          </div>
+          <iframe title="Operation Setup Wizard Mockup JA" src="./mockups/operation-setup-wizard-mockup.html" loading="lazy"></iframe>
+        </div>
+      </section>
+
+      <section class="phase" id="ja-p2">
+        <div class="phase-head">
+          <span class="phase-num">フェーズ 2</span>
+          <h3 class="phase-title">スマートなSurvey管理・運用</h3>
+        </div>
+        <div class="as-is">
+          <div class="t">現状（As-Is）</div>
+          Survey設定は手作業。未回答者確認のためTenant AdminがCSVを書き出し、Excelで目視フィルタし、システム外で督促している。
+        </div>
+        <div class="to-be">
+          <div class="t">改善策（To-Be）</div>
+          <ul>
+            <li><strong>リアルタイム進捗ダッシュボード:</strong> Web上で「回答済／未回答」比率を可視化。状態確認だけのCSV出力を不要に。</li>
+            <li><strong>自動リマインド（Automation Queue）:</strong> 定期自動メール、または未完了ユーザーへの「1タップ督促」（メールSurvey向け）。</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="phase" id="ja-p3">
+        <div class="phase-head">
+          <span class="phase-num">フェーズ 3</span>
+          <h3 class="phase-title">出力分析（Output Analytics）とAI活用の3段階</h3>
+          <div class="phase-scope">適用: <code>稼働分析</code> · <code>サーベイ結果</code></div>
+        </div>
+        <div class="as-is">
+          <div class="t">現状（As-Is）</div>
+          静的グラフの提供にとどまる。ユーザー／コンサルタントが目視で解釈し、空間施策を検討している。
+        </div>
+        <p style="font-size:14px; color:var(--muted); margin:12px 0 0">議論用に<strong>AI活用の3レベル</strong>を提案:</p>
+        <div class="ai-levels">
+          <div class="ai l1">
+            <span class="lvl">レベル1 — 低</span>
+            <h4>AI Insight Card</h4>
+            <p>既存グラフの直下に、分析テキスト＋ミニチャートのカードを追加。従来グラフを見つつ、AIが自動でコメントを付与。</p>
+          </div>
+          <div class="ai l2">
+            <span class="lvl">レベル2 — 中 · クロスドメイン</span>
+            <h4>Workplace Brief</h4>
+            <p>稼働（Operation）＋サーベイ＋空間（Space）を横断する統合ダッシュボード。毎月AIが「オフィス通信」を発行: Health Score、横断インサイト、具体アクション。</p>
+          </div>
+          <div class="ai l3">
+            <span class="lvl">レベル3 — 高 · 対話型データ</span>
+            <h4>AI Chat</h4>
+            <p>セキュアなText-to-SQLチャットボット。自然な日本語で質問（例: <em>「先月、出社が最も少なかった部署は？」</em>）→ AIがデータ取得し、文章＋グラフで回答。コンサルタント依存を低減。</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      WDP System Improvement Proposal · nguồn: đề xuất cải tiến đã cung cấp · Mockup GĐ1: operation-setup-wizard-mockup · không gồm báo giá / Go-NoGo
+    </footer>
+  </div>
+
+  <script>
+    function setLang(l) {
+      document.getElementById('lang-vi').classList.toggle('show', l === 'vi');
+      document.getElementById('lang-ja').classList.toggle('show', l === 'ja');
+      document.getElementById('btn-vi').classList.toggle('active', l === 'vi');
+      document.getElementById('btn-ja').classList.toggle('active', l === 'ja');
+      document.documentElement.lang = l === 'ja' ? 'ja' : 'vi';
+      try { localStorage.setItem('wdp_proposal_lang', l); } catch (e) {}
+    }
+    try {
+      const s = localStorage.getItem('wdp_proposal_lang');
+      if (s === 'vi' || s === 'ja') setLang(s);
+    } catch (e) {}
+  </script>
+</body>
+</html>

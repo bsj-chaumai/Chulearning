@@ -1,16 +1,14 @@
-# 提供資料（ソース材料）
+# 提供資料 / Tài liệu nguồn
 
-| File | Nội dung / 内容 | Ghi chú |
+| File | Nội dung | Vai trò |
 |---|---|---|
-| `operation-setup-wizard-mockup.html` | **WDP Operation Setup Full Wizard Mockup**（4方式・5ステップ） | 主資料。GitHub `main` の `operation-setup-wizard-mockup (3).html` をコピー |
-| `lipstickk_store_index.html` | Lipstickk Store prototype | 同一repoの別プロダクト（本提案の対象外） |
-| `prototype_feature_notes.md` | Lipstickk 機能メモ | 参考 |
+| `wdp_improvement_proposal_source.md` | Đề xuất cải tiến WDP (Vision · Pain Points · To-Be 3 giai đoạn · 3 mức AI) | **Nguồn chính của bản HTML đề xuất** |
+| `operation-setup-wizard-mockup.html` | Mockup Giai đoạn 1 — Operation Setup Wizard | Minh họa luồng nhập liệu |
+| `lipstickk_store_index.html` | Prototype khác trong repo | Không thuộc đề xuất WDP này |
+| `prototype_feature_notes.md` | Ghi chú Lipstickk | Không thuộc đề xuất WDP này |
 
-関連成果物:
-
-| File | Nội dung |
+## Tài liệu đầu ra
+| File | Mô tả |
 |---|---|
-| `../proposal_operation_setup.html` | **提案ドキュメント本体**（JA⇄VI） |
-| `../proposal_operation_setup.md` | 提案の要約 |
-| `../mockups/operation-setup-wizard-mockup.html` | モック原本（提案に埋め込み） |
-| `../wbs_and_improvements.html` | 旧ドラフト（Lipstickk前提・参考扱い） |
+| `../proposal_wdp_improvement.html` | **Bản đề xuất chính** (VI ⇄ JA) |
+| `../mockups/operation-setup-wizard-mockup.html` | Mockup nhúng trong Giai đoạn 1 |

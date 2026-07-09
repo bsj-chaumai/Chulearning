@@ -31,11 +31,11 @@
 
 ## 2. 進捗サマリ
 
-- 現在のフェーズ: **提案ドキュメント完成・レビュー待ち**（金額スキップ）
-- 完了 Step: 方針確定 / モック原本取込 / 提案書（状況整理＋WBS＋改善）作成
-- 進行中 Step: 利用者による提案内容の確認
-- 次の Step: 「モックで実装方針を確定」の承認、または修正指示
-- 備考: `main` にアップロードされた `operation-setup-wizard-mockup (3).html` を `docs/mockups/` に固定し、`docs/proposal_operation_setup.html` に埋め込んだ。
+- 現在のフェーズ: **WDP改善提案HTML完成・レビュー待ち**
+- 完了: 提供Markdownを正本として整理し、VI⇄JA切替HTMLを作成。金額/Go-NoGo等は除外
+- 成果物正本: `docs/proposal_wdp_improvement.html`
+- 次: 内容確認（Vision / Pain Points / 3フェーズ / AI 3レベル）
+
 
 ---
 
