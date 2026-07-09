@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>提案書 — WDP 稼働分析セットアップ改善 / Đề xuất cải tiến Operation Setup</title>
+  <style>
+    :root {
+      --primary: #1e4d8c;
+      --primary-soft: #e8f0fa;
+      --accent: #f5a623;
+      --ink: #1a2332;
+      --muted: #6b7c93;
+      --line: #dde3ec;
+      --bg: #f0f2f5;
+      --ok: #2d8a4e;
+      --warn: #d97706;
+      --danger: #c0392b;
+      --card: #fff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Hiragino Sans", "Noto Sans JP", "Segoe UI", "Meiryo", sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, #e8f0fa 0%, transparent 220px),
+        var(--bg);
+      line-height: 1.65;
+    }
+    .topbar {
+      position: sticky; top: 0; z-index: 40;
+      display: flex; flex-wrap: wrap; gap: 10px;
+      align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+      background: rgba(255,255,255,.96);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(8px);
+    }
+    .brand { font-weight: 800; color: var(--primary); font-size: 14px; }
+    .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .actions button, .actions a {
+      border: 1px solid var(--line); background: #fff; border-radius: 8px;
+      padding: 8px 12px; font-size: 13px; font-weight: 650; cursor: pointer;
+      text-decoration: none; color: inherit;
+    }
+    .actions button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 28px 20px 72px; }
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 28px 24px;
+      box-shadow: 0 10px 30px rgba(30,77,140,.06);
+      margin-bottom: 22px;
+    }
+    .eyebrow { font-size: 12px; font-weight: 700; color: var(--primary); letter-spacing: .04em; text-transform: uppercase; }
+    h1 { font-size: clamp(1.45rem, 2.4vw, 1.9rem); margin: 8px 0 10px; line-height: 1.35; }
+    .lead { color: var(--muted); margin: 0; font-size: 15px; }
+    .meta {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 10px; margin-top: 18px;
+    }
+    .meta .item {
+      background: var(--primary-soft); border-radius: 10px; padding: 10px 12px; font-size: 13px;
+    }
+    .meta .k { color: var(--muted); font-size: 11px; font-weight: 700; }
+    .meta .v { font-weight: 700; margin-top: 2px; }
+    h2 {
+      font-size: 1.2rem; margin: 34px 0 12px; padding-bottom: 8px;
+      border-bottom: 3px solid var(--primary-soft); color: var(--primary);
+    }
+    h3 { font-size: 1.02rem; margin: 22px 0 8px; }
+    .card {
+      background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+      padding: 16px 18px; margin: 12px 0;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 760px) { .grid-2 { grid-template-columns: 1fr; } }
+    .before { background: #fdecea; border-color: #f5c6c2; }
+    .after { background: #e8f5ec; border-color: #b7e0c4; }
+    .tag {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      padding: 2px 8px; border-radius: 999px; margin-right: 4px;
+    }
+    .must { background: #fee2e2; color: var(--danger); }
+    .want { background: #ffedd5; color: var(--warn); }
+    .done { background: #dcfce7; color: var(--ok); }
+    .info { background: var(--primary-soft); color: var(--primary); }
+    table {
+      width: 100%; border-collapse: collapse; background: #fff;
+      border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+      font-size: 13.5px; margin: 10px 0 16px;
+    }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { background: var(--primary-soft); color: var(--primary); font-size: 12px; }
+    tr:last-child td { border-bottom: none; }
+    .toc { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+    .toc a { color: var(--primary); text-decoration: none; }
+    .toc li { margin: 5px 0; }
+    .mock-frame {
+      border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+      background: #fff; margin: 12px 0;
+    }
+    .mock-frame iframe { width: 100%; height: 780px; border: 0; display: block; background: #f8fafc; }
+    .flow {
+      display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0;
+    }
+    .flow .box {
+      background: #fff; border: 1px solid var(--line); border-radius: 10px;
+      padding: 10px 12px; font-size: 13px; font-weight: 650; min-width: 110px; text-align: center;
+    }
+    .flow .box.active { border-color: var(--primary); background: var(--primary-soft); color: var(--primary); }
+    .flow .arrow { color: var(--muted); font-weight: 700; }
+    .callout {
+      border-left: 4px solid var(--accent); background: #fffbeb;
+      border-radius: 0 10px 10px 0; padding: 12px 14px; margin: 14px 0; font-size: 14px;
+    }
+    .lang-block { display: none; }
+    .lang-block.show { display: block; }
+    code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; font-size: 0.9em; }
+    ul.compact li { margin: 4px 0; }
+    .kpi {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;
+    }
+    .kpi .n {
+      background: #fff; border: 1px solid var(--line); border-radius: 12px;
+      padding: 14px; text-align: center;
+    }
+    .kpi .n b { display: block; font-size: 22px; color: var(--primary); }
+    .kpi .n span { font-size: 12px; color: var(--muted); }
+    footer { margin-top: 40px; color: var(--muted); font-size: 12px; }
+    .src-list code { word-break: break-all; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">WDP · Operation Setup 提案</div>
+    <div class="actions">
+      <button type="button" id="btn-ja" class="active" onclick="setLang('ja')">日本語</button>
+      <button type="button" id="btn-vi" onclick="setLang('vi')">Tiếng Việt</button>
+      <a href="./mockups/operation-setup-wizard-mockup.html" target="_blank" rel="noopener">Mockup</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <!-- ===================== JA ===================== -->
+    <div id="lang-ja" class="lang-block show">
+      <section class="hero">
+        <div class="eyebrow">提案ドキュメント（状況整理）</div>
+        <h1>WDP 稼働分析セットアップ<br>入力フロー最適化 提案書</h1>
+        <p class="lead">本資料は、これまでに共有された情報（現行プロトタイプ／Estimation Kit／稼働分析セットアップ・モック）だけを整理し、<strong>現状・課題・改善案・機能分解</strong>を一枚で把握できるようにしたものです。金額見積は対象外です。</p>
+        <div class="meta">
+          <div class="item"><div class="k">対象</div><div class="v">稼働分析セットアップ UI</div></div>
+          <div class="item"><div class="k">目的</div><div class="v">4データソースを1ウィザードへ</div></div>
+          <div class="item"><div class="k">成果物</div><div class="v">状況整理 + WBS + モック</div></div>
+          <div class="item"><div class="k">作成日</div><div class="v">2026-07-09</div></div>
+        </div>
+      </section>
+
+      <div class="toc">
+        <strong>目次</strong>
+        <ol>
+          <li><a href="#ja-1">1. いま何が起きているか（状況サマリ）</a></li>
+          <li><a href="#ja-2">2. 共有済みインプット一覧</a></li>
+          <li><a href="#ja-3">3. AS-IS（旧UI）と課題</a></li>
+          <li><a href="#ja-4">4. TO-BE（モックが示す改善）</a></li>
+          <li><a href="#ja-5">5. モック本体（原本）</a></li>
+          <li><a href="#ja-6">6. 機能分解（WBS）</a></li>
+          <li><a href="#ja-7">7. 改善・追加提案</a></li>
+          <li><a href="#ja-8">8. 次アクション</a></li>
+        </ol>
+      </div>
+
+      <h2 id="ja-1">1. いま何が起きているか（状況サマリ）</h2>
+      <div class="kpi">
+        <div class="n"><b>4</b><span>データソース方式</span></div>
+        <div class="n"><b>5</b><span>ウィザード手順</span></div>
+        <div class="n"><b>1</b><span>保存API呼び出し</span></div>
+        <div class="n"><b>0</b><span>金額見積（対象外）</span></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <p style="margin:0"><strong>一言でいうと：</strong> 稼働分析の初期設定が、旧UIでは「方式ごとに画面が分かれ・詳細設定を手入力」だったものを、<strong>1つのウィザード</strong>に統合し、ファイル選択直後に FE がカラムを自動提案する体験へ変える改善提案です（モック実装済み・AI不使用のルールベース）。</p>
+      </div>
+
+      <h2 id="ja-2">2. 共有済みインプット一覧</h2>
+      <table class="src-list">
+        <thead><tr><th>資料</th><th>内容</th><th>本提案での扱い</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>operation-setup-wizard-mockup (3).html</code><br>（GitHub main にアップロード）</td>
+            <td>WDP Operation Setup Full Wizard Mockup（4方式・5ステップ）</td>
+            <td><span class="tag done">主資料</span> 本提案の中核。下記に原本を埋め込み</td>
+          </tr>
+          <tr>
+            <td><code>index.html</code>（Lipstickk Store）</td>
+            <td>別プロダクト（価格・利益計算の単一HTML）</td>
+            <td><span class="tag info">参考</span> 同一リポジトリ内の別案件。本提案の対象外</td>
+          </tr>
+          <tr>
+            <td><code>Archive.zip</code>（Estimation Kit）</td>
+            <td>見積・提案キット一式</td>
+            <td><span class="tag info">参考</span> 手順枠として利用。金額ステップはスキップ</td>
+          </tr>
+          <tr>
+            <td>利用者方針</td>
+            <td>コスト算出スキップ／WBS＋改善に集中／VI⇄JA</td>
+            <td><span class="tag done">確定</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout">本提案は「送られた情報を分かりやすく整理する」ことが目的です。推測で要件を増やしていません。モックに書かれている文言・フロー・API を正とします。</div>
+
+      <h2 id="ja-3">3. AS-IS（旧UI）と課題</h2>
+      <div class="grid-2">
+        <div class="card before">
+          <h3 style="margin-top:0">旧UI（モック内の比較表示より）</h3>
+          <ul class="compact">
+            <li>「稼働分析情報」画面で<strong>後から</strong>データソースを選択</li>
+            <li>ソースごとに<strong>別の詳細設定画面</strong></li>
+            <li>出社滞在・従業員で<strong>2画面</strong>に分かれる</li>
+            <li>カラム設定は詳細設定で<strong>手入力</strong></li>
+          </ul>
+        </div>
+        <div class="card after">
+          <h3 style="margin-top:0">課題（整理）</h3>
+          <ul class="compact">
+            <li>画面遷移が多く、初回セットアップの学習コストが高い</li>
+            <li>列名の手入力ミスが起きやすい</li>
+            <li>方式ごとのUI差分が大きく、保守・説明が重い</li>
+            <li>「何をどの順で設定するか」が利用者に見えにくい</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 id="ja-4">4. TO-BE（モックが示す改善）</h2>
+      <div class="flow">
+        <div class="box active">1. データソース</div><div class="arrow">→</div>
+        <div class="box active">2. ファイル/連携</div><div class="arrow">→</div>
+        <div class="box active">3. カラム設定</div><div class="arrow">→</div>
+        <div class="box active">4. 集計条件</div><div class="arrow">→</div>
+        <div class="box active">5. 確認・保存</div>
+      </div>
+
+      <h3>4.1 対応する4データソース</h3>
+      <table>
+        <thead><tr><th>#</th><th>方式</th><th>API method</th><th>入力</th><th>主な設定項目</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>①</td>
+            <td>Wifiアクセスポイント CSV</td>
+            <td><code>csvAccessPoint</code></td>
+            <td>CSV（clientMac + Unix Timestamp）</td>
+            <td>userId列 / Timestamp列 / 形式=<code>timestamp</code></td>
+          </tr>
+          <tr>
+            <td>②</td>
+            <td>入退室ログ Excel</td>
+            <td><code>csvAccessLog</code></td>
+            <td>Excel（日時・機器・入退室フラグ・ID）</td>
+            <td>userId / Timestamp / ゲート列 / 入退室フラグ / 入室・退室値 / 形式=<code>excel_serial</code></td>
+          </tr>
+          <tr>
+            <td>③</td>
+            <td>手入力 Excel（おすすめ）</td>
+            <td><code>csvManual</code></td>
+            <td>Excel/CSV（社員ID + 日時・ロング形式）</td>
+            <td>userId列 / Timestamp列 / 形式=<code>excel_serial</code></td>
+          </tr>
+          <tr>
+            <td>④</td>
+            <td>Meraki 自動収集</td>
+            <td><code>wifiAccessPoint</code></td>
+            <td>ファイル不要（Validation連携）</td>
+            <td>Validation文字列 / SecretKey / Endpoint</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>4.2 ウィザード各ステップでやること</h3>
+      <table>
+        <thead><tr><th>Step</th><th>画面</th><th>要点（モック記載）</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>データソース選択</td><td>最初に方式を選び、以降のステップを自動切替</td></tr>
+          <tr><td>2</td><td>ファイルアップロード / Meraki連携</td><td>従業員＋出社滞在を1画面で。FEがヘッダーを即時読取。Merakiは Validation / SecretKey / Endpoint</td></tr>
+          <tr><td>3</td><td>カラム設定の確認</td><td>FEルールで自動提案 → プルダウンで変更可。Timestamp形式も検出</td></tr>
+          <tr><td>4</td><td>集計条件</td><td>曜日・時間帯（既定 平日 9–18）・祝日除外・タッチポイント連携</td></tr>
+          <tr><td>5</td><td>確認・保存</td><td>1回の保存で <code>POST /operation-analysis/setup</code>（method / input-setting / target-dates-slots → S3 → Glue）</td></tr>
+        </tbody>
+      </table>
+
+      <h3>4.3 旧→新の対比（モック内バナー）</h3>
+      <table>
+        <thead><tr><th>観点</th><th>旧</th><th>新（モック）</th></tr></thead>
+        <tbody>
+          <tr><td>画面構成</td><td>出社滞在・従業員で2画面</td><td>1画面・FE即時チェック</td></tr>
+          <tr><td>カラム設定</td><td>詳細設定で手入力</td><td>FEルールで自動提案 → 確認</td></tr>
+          <tr><td>方式選択</td><td>後から選択</td><td>最初に選択しフロー分岐</td></tr>
+          <tr><td>保存</td><td>（分散）</td><td>確認画面で一括 POST</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="ja-5">5. モック本体（原本）</h2>
+      <p>GitHub <code>main</code> にアップロードされた <strong>operation-setup-wizard-mockup</strong> をそのまま埋め込みます（開発側作成の原本）。</p>
+      <div class="mock-frame">
+        <iframe title="Operation Setup Wizard Mockup" src="./mockups/operation-setup-wizard-mockup.html" loading="lazy"></iframe>
+      </div>
+      <p><a href="./mockups/operation-setup-wizard-mockup.html" target="_blank" rel="noopener">モックを全画面で開く</a></p>
+
+      <h2 id="ja-6">6. 機能分解（WBS）</h2>
+      <p>モックから読み取れる実装単位。優先度は「モックで必須に見えるもの＝Must」。</p>
+      <table>
+        <thead><tr><th>ID</th><th>機能</th><th>内容</th><th>優先</th></tr></thead>
+        <tbody>
+          <tr><td>W1</td><td>方式選択 UI</td><td>4方式カード、タグ（おすすめ／要Meraki）、選択で後続切替</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W2</td><td>二重アップロード</td><td>従業員マスタ＋出社滞在ファイル（CSV/XLSX）</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W3</td><td>FE ヘッダー解析</td><td>CSV/Excel 読取、行数・列名表示、即時バリデーション表示</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W4</td><td>カラム自動提案</td><td>ルールベース（正規表現）で userId/Timestamp/ゲート/入退室を提案</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W5</td><td>手動オーバーライド</td><td>プルダウン／入力で提案を変更可能</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W6</td><td>Timestamp形式検出</td><td>Unix / excel_serial / 文字列パターン（%Y/%m/%d …）</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W7</td><td>入退室固有設定</td><td>ゲート列・入退室フラグ列・入室/退室値</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W8</td><td>Meraki連携 UI</td><td>Validation貼付、SecretKey/Endpoint コピー</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W9</td><td>集計条件</td><td>曜日・時間帯・祝日除外・タッチポイント</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W10</td><td>確認＆一括保存</td><td><code>POST /operation-analysis/setup</code> ペイロード組み立て</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W11</td><td>サンプルファイル導線</td><td><code>docs/examples/operation-samples/</code> からのDL/読込</td><td><span class="tag want">Want</span></td></tr>
+          <tr><td>W12</td><td>進捗・ステップナビ</td><td>5ステップ進捗バー、戻る/次へ、完了CTA</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W13</td><td>旧UI比較ヘルプ</td><td>バナー／help-box で学習コスト低減</td><td><span class="tag want">Want</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>保存時に送るもの（モックの完了メッセージより）</h3>
+      <ul class="compact">
+        <li><code>method</code>（apiMethod）</li>
+        <li><code>input-setting</code>（マッピング）</li>
+        <li><code>target-dates-slots</code>（集計条件）</li>
+        <li>S3 アップロード → Glue</li>
+      </ul>
+
+      <h2 id="ja-7">7. 改善・追加提案（モックを踏まえた次の一手）</h2>
+      <ol>
+        <li><strong>本モックを本番UIの仕様書として固定</strong>（文言・ステップ・4方式・API）— 追加ヒアリングなしで実装着手可能。</li>
+        <li><strong>自動提案の精度ログ</strong>（提案列 vs ユーザー修正）を取り、ルール改善に回す。</li>
+        <li><strong>従業員ファイルと出社滞在のID突合プレビュー</strong>（一致率・不一致サンプル）を確認画面に追加。</li>
+        <li><strong>エラー時の再実行ガイド</strong>（形式不一致・必須列欠落）をステップ内に固定文言化。</li>
+        <li><strong>多言語（JA/VI）</strong>は本提案ドキュメントと同様、UIトグルを検討（運用が日越の場合）。</li>
+      </ol>
+
+      <h2 id="ja-8">8. 次アクション</h2>
+      <div class="card">
+        <ol style="margin:0; padding-left:18px">
+          <li>本提案の内容（特に4方式・5ステップ・API）に相違がないか確認</li>
+          <li>OK なら「このモックで実装方針を確定」と返信</li>
+          <li>差分があれば、修正点だけ指摘（例: 集計条件の既定値、Meraki手順）</li>
+        </ol>
+      </div>
+      <p style="color:var(--muted); font-size:13px">※ 金額・工数の積み上げは依頼により行っていません。必要になった時点で別途対応します。</p>
+    </div>
+
+    <!-- ===================== VI ===================== -->
+    <div id="lang-vi" class="lang-block">
+      <section class="hero">
+        <div class="eyebrow">Tài liệu đề xuất（làm rõ tình hình）</div>
+        <h1>WDP Operation Setup<br>Đề xuất tối ưu luồng nhập liệu</h1>
+        <p class="lead">Tài liệu này <strong>chỉ làm rõ các thông tin đã gửi</strong>（prototype / Estimation Kit / mockup Operation Setup）, gom thành một bản 提案 dễ nắm: hiện trạng · vấn đề · hướng cải tiến · WBS. <strong>Không tính chi phí.</strong></p>
+        <div class="meta">
+          <div class="item"><div class="k">Đối tượng</div><div class="v">UI Setup phân tích vận hành</div></div>
+          <div class="item"><div class="k">Mục tiêu</div><div class="v">4 nguồn dữ liệu → 1 wizard</div></div>
+          <div class="item"><div class="k">Đầu ra</div><div class="v">Tình hình + WBS + mockup gốc</div></div>
+          <div class="item"><div class="k">Ngày</div><div class="v">2026-07-09</div></div>
+        </div>
+      </section>
+
+      <div class="toc">
+        <strong>Mục lục</strong>
+        <ol>
+          <li><a href="#vi-1">1. Tình hình hiện tại (tóm tắt)</a></li>
+          <li><a href="#vi-2">2. Danh sách thông tin đã gửi</a></li>
+          <li><a href="#vi-3">3. AS-IS (UI cũ) &amp; vấn đề</a></li>
+          <li><a href="#vi-4">4. TO-BE (cải tiến theo mockup)</a></li>
+          <li><a href="#vi-5">5. Mockup gốc</a></li>
+          <li><a href="#vi-6">6. Phân rã tính năng (WBS)</a></li>
+          <li><a href="#vi-7">7. Đề xuất cải tiến thêm</a></li>
+          <li><a href="#vi-8">8. Việc cần làm tiếp</a></li>
+        </ol>
+      </div>
+
+      <h2 id="vi-1">1. Tình hình hiện tại (tóm tắt)</h2>
+      <div class="kpi">
+        <div class="n"><b>4</b><span>kiểu nguồn dữ liệu</span></div>
+        <div class="n"><b>5</b><span>bước wizard</span></div>
+        <div class="n"><b>1</b><span>lần gọi API lưu</span></div>
+        <div class="n"><b>0</b><span>tính tiền (ngoài phạm vi)</span></div>
+      </div>
+      <div class="card" style="margin-top:14px">
+        <p style="margin:0"><strong>Một câu:</strong> Setup phân tích vận hành (稼働分析) trước đây chọn nguồn dữ liệu muộn và cấu hình chi tiết thủ công trên nhiều màn hình → mockup đề xuất <strong>gộp thành 1 wizard</strong>, FE tự đề xuất cột ngay sau khi chọn file (rule-based, không dùng AI).</p>
+      </div>
+
+      <h2 id="vi-2">2. Danh sách thông tin đã gửi</h2>
+      <table class="src-list">
+        <thead><tr><th>Tài liệu</th><th>Nội dung</th><th>Cách dùng trong đề xuất</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>operation-setup-wizard-mockup (3).html</code><br>(đã upload lên GitHub main)</td>
+            <td>Full Wizard Mockup — 4 phương thức, 5 bước</td>
+            <td><span class="tag done">Tài liệu chính</span> — nhúng nguyên bản bên dưới</td>
+          </tr>
+          <tr>
+            <td><code>index.html</code> (Lipstickk Store)</td>
+            <td>Sản phẩm khác (tính giá/lợi nhuận)</td>
+            <td><span class="tag info">Tham khảo</span> — cùng repo, <strong>không phải</strong> đối tượng đề xuất này</td>
+          </tr>
+          <tr>
+            <td><code>Archive.zip</code> (Estimation Kit)</td>
+            <td>Bộ kit ước lượng / đề xuất</td>
+            <td><span class="tag info">Tham khảo</span> — dùng khung quy trình; bỏ bước tiền</td>
+          </tr>
+          <tr>
+            <td>Chỉ đạo của bạn</td>
+            <td>Bỏ chi phí; tập trung WBS + cải tiến; VI⇄JA</td>
+            <td><span class="tag done">Đã chốt</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout">Mục tiêu tài liệu: <strong>làm rõ thông tin đã gửi</strong>, dễ nắm tình hình — không bịa thêm yêu cầu. Lấy chữ và flow trong mockup làm chuẩn.</div>
+
+      <h2 id="vi-3">3. AS-IS (UI cũ) &amp; vấn đề</h2>
+      <div class="grid-2">
+        <div class="card before">
+          <h3 style="margin-top:0">UI cũ (theo banner trong mockup)</h3>
+          <ul class="compact">
+            <li>Chọn nguồn dữ liệu <strong>sau</strong> trên màn “情報稼働分析”</li>
+            <li>Mỗi nguồn có <strong>màn hình cấu hình riêng</strong></li>
+            <li>Tách <strong>2 màn</strong>: chấm công/lưu trú và nhân viên</li>
+            <li>Map cột bằng <strong>nhập tay</strong> ở chi tiết</li>
+          </ul>
+        </div>
+        <div class="card after">
+          <h3 style="margin-top:0">Vấn đề (đã làm rõ)</h3>
+          <ul class="compact">
+            <li>Nhiều bước chuyển màn → khó học lần đầu</li>
+            <li>Dễ sai tên cột khi nhập tay</li>
+            <li>UI lệch nhau theo từng nguồn → khó bảo trì / hướng dẫn</li>
+            <li>Người dùng khó thấy “phải làm gì theo thứ tự nào”</li>
+          </ul>
+        </div>
+      </div>
+
+      <h2 id="vi-4">4. TO-BE (cải tiến theo mockup)</h2>
+      <div class="flow">
+        <div class="box active">1. Nguồn DL</div><div class="arrow">→</div>
+        <div class="box active">2. File / Meraki</div><div class="arrow">→</div>
+        <div class="box active">3. Map cột</div><div class="arrow">→</div>
+        <div class="box active">4. Điều kiện tổng hợp</div><div class="arrow">→</div>
+        <div class="box active">5. Xác nhận &amp; lưu</div>
+      </div>
+
+      <h3>4.1 Bốn nguồn dữ liệu</h3>
+      <table>
+        <thead><tr><th>#</th><th>Phương thức</th><th>API method</th><th>Đầu vào</th><th>Cấu hình chính</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>①</td>
+            <td>CSV Wifi Access Point</td>
+            <td><code>csvAccessPoint</code></td>
+            <td>CSV (clientMac + Unix Timestamp)</td>
+            <td>cột userId / Timestamp / format=<code>timestamp</code></td>
+          </tr>
+          <tr>
+            <td>②</td>
+            <td>Excel log vào/ra</td>
+            <td><code>csvAccessLog</code></td>
+            <td>Excel (thời gian, thiết bị, cờ vào/ra, ID)</td>
+            <td>userId / Timestamp / cột cổng / cờ / giá trị vào·ra / <code>excel_serial</code></td>
+          </tr>
+          <tr>
+            <td>③</td>
+            <td>Excel nhập tay (khuyến nghị)</td>
+            <td><code>csvManual</code></td>
+            <td>Excel/CSV (mã NV + thời gian, dạng long)</td>
+            <td>cột userId / Timestamp / <code>excel_serial</code></td>
+          </tr>
+          <tr>
+            <td>④</td>
+            <td>Thu thập tự động Meraki</td>
+            <td><code>wifiAccessPoint</code></td>
+            <td>Không cần file (Validation)</td>
+            <td>chuỗi Validation / SecretKey / Endpoint</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>4.2 Việc làm từng bước wizard</h3>
+      <table>
+        <thead><tr><th>Bước</th><th>Màn hình</th><th>Điểm chính (theo mockup)</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Chọn nguồn</td><td>Chọn ngay từ đầu → các bước sau tự đổi</td></tr>
+          <tr><td>2</td><td>Upload file / Meraki</td><td>Nhân viên + chấm công trên 1 màn; FE đọc header ngay. Meraki: Validation / SecretKey / Endpoint</td></tr>
+          <tr><td>3</td><td>Xác nhận map cột</td><td>FE đề xuất theo rule → sửa bằng dropdown. Tự nhận dạng Timestamp</td></tr>
+          <tr><td>4</td><td>Điều kiện tổng hợp</td><td>Thứ trong tuần, khung giờ (mặc định T2–T6 9–18), loại ngày lễ, touchpoint</td></tr>
+          <tr><td>5</td><td>Xác nhận &amp; lưu</td><td>Một lần lưu gọi <code>POST /operation-analysis/setup</code> (method / input-setting / target-dates-slots → S3 → Glue)</td></tr>
+        </tbody>
+      </table>
+
+      <h3>4.3 So sánh cũ → mới</h3>
+      <table>
+        <thead><tr><th>Khía cạnh</th><th>Cũ</th><th>Mới (mockup)</th></tr></thead>
+        <tbody>
+          <tr><td>Bố cục</td><td>2 màn (chấm công / nhân viên)</td><td>1 màn + FE check ngay</td></tr>
+          <tr><td>Map cột</td><td>Nhập tay ở chi tiết</td><td>Tự đề xuất → xác nhận</td></tr>
+          <tr><td>Chọn nguồn</td><td>Chọn muộn</td><td>Chọn đầu → nhánh flow</td></tr>
+          <tr><td>Lưu</td><td>Phân tán</td><td>POST một lần ở bước xác nhận</td></tr>
+        </tbody>
+      </table>
+
+      <h2 id="vi-5">5. Mockup gốc</h2>
+      <p>Nhúng nguyên file đã upload lên GitHub <code>main</code> (<strong>operation-setup-wizard-mockup</strong> do dev tạo).</p>
+      <div class="mock-frame">
+        <iframe title="Operation Setup Wizard Mockup VI" src="./mockups/operation-setup-wizard-mockup.html" loading="lazy"></iframe>
+      </div>
+      <p><a href="./mockups/operation-setup-wizard-mockup.html" target="_blank" rel="noopener">Mở mockup full-screen</a></p>
+
+      <h2 id="vi-6">6. Phân rã tính năng (WBS)</h2>
+      <p>Các đơn vị chức năng đọc được từ mockup. Must = phần mockup thể hiện là bắt buộc.</p>
+      <table>
+        <thead><tr><th>ID</th><th>Tính năng</th><th>Mô tả</th><th>Ưu tiên</th></tr></thead>
+        <tbody>
+          <tr><td>W1</td><td>UI chọn phương thức</td><td>4 thẻ, tag (おすすめ / 要Meraki), chọn → đổi bước sau</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W2</td><td>Upload kép</td><td>Master nhân viên + file chấm công (CSV/XLSX)</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W3</td><td>FE parse header</td><td>Đọc CSV/Excel, hiện số dòng &amp; tên cột, validate ngay</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W4</td><td>Đề xuất map cột</td><td>Rule regex: userId / Timestamp / cổng / vào-ra</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W5</td><td>Sửa tay</td><td>Đổi đề xuất bằng dropdown / input</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W6</td><td>Nhận dạng Timestamp</td><td>Unix / excel_serial / pattern chuỗi</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W7</td><td>Cấu hình vào/ra</td><td>Cột cổng, cờ, giá trị vào/ra</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W8</td><td>UI Meraki</td><td>Dán Validation, copy SecretKey/Endpoint</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W9</td><td>Điều kiện tổng hợp</td><td>Thứ, giờ, ngày lễ, touchpoint</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W10</td><td>Xác nhận &amp; lưu</td><td>Ghép payload <code>POST /operation-analysis/setup</code></td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W11</td><td>Sample files</td><td>Tải/đọc từ <code>docs/examples/operation-samples/</code></td><td><span class="tag want">Want</span></td></tr>
+          <tr><td>W12</td><td>Thanh tiến độ</td><td>5 bước, Back/Next, CTA hoàn tất</td><td><span class="tag must">Must</span></td></tr>
+          <tr><td>W13</td><td>Help so sánh UI cũ</td><td>Banner / help-box giảm chi phí học</td><td><span class="tag want">Want</span></td></tr>
+        </tbody>
+      </table>
+
+      <h3>Payload khi lưu (theo thông báo hoàn tất trong mockup)</h3>
+      <ul class="compact">
+        <li><code>method</code> (apiMethod)</li>
+        <li><code>input-setting</code> (mapping)</li>
+        <li><code>target-dates-slots</code> (điều kiện tổng hợp)</li>
+        <li>Upload S3 → Glue</li>
+      </ul>
+
+      <h2 id="vi-7">7. Đề xuất cải tiến thêm</h2>
+      <ol>
+        <li><strong>Chốt mockup này làm spec UI</strong> (copy, 5 bước, 4 nguồn, API) — đủ để bắt đầu implement.</li>
+        <li><strong>Log độ chính xác đề xuất cột</strong> (đề xuất vs user sửa) để tinh chỉnh rule.</li>
+        <li><strong>Preview khớp ID</strong> giữa file nhân viên và file chấm công (tỷ lệ khớp / mẫu lệch) ở bước xác nhận.</li>
+        <li><strong>Hướng dẫn lỗi cố định</strong> trong từng bước (sai format, thiếu cột bắt buộc).</li>
+        <li><strong>Đa ngôn ngữ JA/VI</strong> trên UI nếu vận hành Nhật–Việt (giống toggle tài liệu này).</li>
+      </ol>
+
+      <h2 id="vi-8">8. Việc cần làm tiếp</h2>
+      <div class="card">
+        <ol style="margin:0; padding-left:18px">
+          <li>Xác nhận nội dung đề xuất (đặc biệt 4 nguồn · 5 bước · API) có đúng không</li>
+          <li>OK thì trả lời “chốt mockup này làm hướng triển khai”</li>
+          <li>Nếu lệch, chỉ cần chỉ ra điểm sửa (vd. mặc định giờ tổng hợp, bước Meraki)</li>
+        </ol>
+      </div>
+      <p style="color:var(--muted); font-size:13px">※ Không tính chi phí/công theo yêu cầu. Khi cần sẽ làm riêng.</p>
+    </div>
+
+    <footer>
+      提案ドキュメント · 2026-07-09 · nguồn: operation-setup-wizard-mockup (GitHub main) · không gồm ước lượng tiền
+    </footer>
+  </div>
+
+  <script>
+    function setLang(l) {
+      document.getElementById('lang-ja').classList.toggle('show', l === 'ja');
+      document.getElementById('lang-vi').classList.toggle('show', l === 'vi');
+      document.getElementById('btn-ja').classList.toggle('active', l === 'ja');
+      document.getElementById('btn-vi').classList.toggle('active', l === 'vi');
+      document.documentElement.lang = l === 'vi' ? 'vi' : 'ja';
+      try { localStorage.setItem('proposal_lang', l); } catch (e) {}
+    }
+    try {
+      const s = localStorage.getItem('proposal_lang');
+      if (s === 'vi' || s === 'ja') setLang(s);
+    } catch (e) {}
+  </script>
+</body>
+</html>
